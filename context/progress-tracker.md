@@ -68,6 +68,7 @@ Update this file whenever the current phase, active feature, or implementation s
     - `Team::sponsors()` has-many added to the starter kit `Team` model (approved by James).
     - `SponsorFactory` (team from `Team::factory()`, pending, A-rated Skilled Worker).
     - `tests/Feature/Sponsors/SponsorModelTest.php` (11 tests): migration up/down, factory, relations, cascade delete, unique per team, enum and other casts, all three scopes. `composer ci:check` passes (108 tests).
+    - First commit (`0cefe7a`) was reverted (`95a4e5c`), then rebuilt unchanged on 2026-10-04: the same eight files, checked by blob hash against `0cefe7a`. Migration rolled back and re-run on local MySQL. `composer ci:check` passes (108 tests).
 
 ## In Progress
 
