@@ -48,6 +48,7 @@ return [
         'Skilled Worker',
         'Global Business Mobility: Senior or Specialist Worker',
         'Global Business Mobility: Graduate Trainee',
+        'Scale-up',
     ],
 
     /*

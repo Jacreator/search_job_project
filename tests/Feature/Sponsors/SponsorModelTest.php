@@ -70,6 +70,13 @@ it('refuses the same name and town twice in one team', function () {
     Sponsor::factory()->for($team)->create(['name' => 'Acme Software Ltd', 'town' => 'Sheffield']);
 })->throws(UniqueConstraintViolationException::class);
 
+it('refuses the same name twice in one team when the town is empty', function () {
+    $team = Team::factory()->create();
+    Sponsor::factory()->for($team)->create(['name' => 'Acme Software Ltd', 'town' => '']);
+
+    Sponsor::factory()->for($team)->create(['name' => 'Acme Software Ltd', 'town' => '']);
+})->throws(UniqueConstraintViolationException::class);
+
 it('casts tech_reason and skip_reason to their enums', function () {
     $sponsor = Sponsor::factory()->create([
         'is_tech' => true,

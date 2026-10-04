@@ -70,6 +70,14 @@ Update this file whenever the current phase, active feature, or implementation s
     - `tests/Feature/Sponsors/SponsorModelTest.php` (11 tests): migration up/down, factory, relations, cascade delete, unique per team, enum and other casts, all three scopes. `composer ci:check` passes (108 tests).
     - First commit (`0cefe7a`) was reverted (`95a4e5c`), then rebuilt unchanged on 2026-10-04: the same eight files, checked by blob hash against `0cefe7a`. Migration rolled back and re-run on local MySQL. `composer ci:check` passes (108 tests).
 
+- Context and config changes before Feature 03 (2026-10-04). No Feature 03 code:
+    - Closed four open questions: priority locations stay global, route names checked against the 2026-10-02 register, missing towns stored as `''`, Larastan memory limit.
+    - `composer.json`: `types:check` runs `phpstan analyse --memory-limit=512M`.
+    - `Scale-up` added to the default routes in `config/sponsor-finder.php`, spec 01, `project-overview.md`, and the config test.
+    - Spec 03: missing towns stored as `''`; rating parsing cases (A rating, A (Premium), A (SME+), B rating, anything else null, including "UK Expansion Worker: Provisional"); Check When Done now requires a re-import-with-no-town test and one `SponsorRating` unit test per case. Those tests are written in Feature 03, because the importer and `SponsorRating` do not exist yet.
+    - `data-model-context.md`: town stored as `''` at import.
+    - `SponsorModelTest`: new test that two sponsors with the same name and town `''` in one team are refused. `composer ci:check` passes (109 tests).
+
 ## In Progress
 
 - None.
@@ -81,11 +89,7 @@ Update this file whenever the current phase, active feature, or implementation s
 ## Open Questions
 
 - Which search provider to use long term if Brave limits are too tight.
-- Should priority locations become a per-team setting later?
 - Where will the app be hosted, if anywhere beyond local Herd?
-- Default route names use the register's colon form (`Global Business Mobility: Senior or Specialist Worker`, `Global Business Mobility: Graduate Trainee`). Check them against the latest register CSV before spec 03.
-- The unique index on `team_id` + `name` + `town` does not stop duplicates when `town` is null (MySQL and SQLite treat nulls as distinct). Spec 03 upserts by team, name, and town, so rows with no town could be inserted twice on re-import. Should import store a missing town as an empty string, or match null towns by hand?
-- Larastan sometimes crashes at the local PHP 128M memory limit (it crashed again during Feature 02, then passed on the re-run; `--memory-limit=512M` always passes). If it keeps happening: raise `memory_limit` in local php.ini, or add `--memory-limit` to the `types:check` script?
 
 ## Architecture Decisions
 
@@ -110,6 +114,11 @@ Update this file whenever the current phase, active feature, or implementation s
 - Lookups are shared between teams only when both teams have `share_lookups` on (default off, owners and admins toggle). `confirmed`, `region`, `priority`, `rating_grade`, and `rating_grade_manual` are never shared, and `BRating` rows are never a source. A copy of another team's hand-confirmed website is capped at confidence 74 and flagged `needs_second_check` until this team confirms it.
 - The agent never commits, pushes, or runs any git write command. It may run only `git status`, `git diff`, and `git log`. James does all git writes. Enforced by `.claude/settings.json`.
 - Local `APP_URL` is the Herd URL `http://search_job.test`.
+- Priority locations stay a single global config list for now. Revisit only if a team outside Yorkshire uses the app.
+- Default route names are correct in the register's colon form (`Global Business Mobility: Senior or Specialist Worker`, `Global Business Mobility: Graduate Trainee`), checked against the 2026-10-02 register. `Scale-up` is a fourth default route.
+- Import stores a missing town as `''`, never null, so the `team_id` + `name` + `town` unique index catches duplicates (a unique index treats nulls as distinct). The column stays nullable.
+- Larastan runs with `--memory-limit=512M` (`types:check` in `composer.json`), because it crashed at the local 128M PHP limit.
+- Rating grades: "A rating", "A (Premium)" and "A (SME+)" give A. "B rating" gives B. Anything else, including "UK Expansion Worker: Provisional", gives null.
 
 ## Session Notes
 
