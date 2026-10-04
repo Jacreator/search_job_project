@@ -100,6 +100,14 @@ it('merges register rows for the same name and town into one sponsor', function 
         ->and($iota->priority)->toBe(70);
 });
 
+it('finds imported Scale-up sponsors with the scaleUp scope', function () {
+    $team = Team::factory()->create();
+
+    importInto($team, fixtureRegister())->assertSuccessful();
+
+    expect($team->sponsors()->scaleUp()->pluck('name')->all())->toBe(['Iota Graduates Ltd']);
+});
+
 it('lists a repeated route once', function () {
     $team = Team::factory()->create();
 

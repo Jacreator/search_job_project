@@ -2,15 +2,16 @@
 
 ## Command
 
-`php artisan sponsors:export {--team=} {--min-confidence=50} {--town=} {--region=} {--confirmed}`
+`php artisan sponsors:export {--team=} {--min-confidence=50} {--town=} {--region=} {--confirmed} {--scale-up}`
 
 - `--team` is the team slug and is required.
+- `--scale-up` keeps only Scale-up sponsors (`Sponsor::scaleUp()`).
 
 ## Rules
 
 - Only the team's `done` rows with a website.
 - Write to `storage/app/exports/{team-slug}_tech_sponsors_{date}.csv`.
-- Columns: Name, Town, Region, Company number, SIC codes, Website, Confidence, Confirmed.
+- Columns: Name, Town, Region, Company number, SIC codes, Website, Confidence, Confirmed, Scale-up (Yes / No, from `route`).
 - Order by confidence, highest first.
 - Use `lazy()` to stream rows.
 - Add a UTF-8 BOM so Excel opens it cleanly.
@@ -26,5 +27,6 @@ These are not part of this spec. Each later spec extends the export when it is b
 
 ## Check When Done
 
-- Feature test checks headers, filters (including region), and order.
+- Feature test checks headers, filters (including region and `--scale-up`), and order.
+- The Scale-up column is Yes for a sponsor whose `route` includes Scale-up, alone or with other routes.
 - Rows from other teams never appear in the export.

@@ -127,6 +127,27 @@ it('scopes to sponsors ready for lookup', function () {
         ->toBe([$pending->id, $chDone->id]);
 });
 
+it('scopes to Scale-up sponsors, alone or with other routes', function () {
+    $only = Sponsor::factory()->create(['route' => 'Scale-up']);
+    $joined = Sponsor::factory()->create(['route' => 'Skilled Worker, Scale-up']);
+    Sponsor::factory()->create(['route' => 'Skilled Worker']);
+    Sponsor::factory()->create(['route' => 'Skilled Worker, Global Business Mobility: Senior or Specialist Worker']);
+
+    expect(Sponsor::query()->scaleUp()->orderBy('id')->pluck('id')->all())->toBe([$only->id, $joined->id]);
+});
+
+it('combines the Scale-up scope with the A grade', function () {
+    $aRated = Sponsor::factory()->create(['route' => 'Scale-up', 'rating_grade' => 'A']);
+    Sponsor::factory()->create([
+        'route' => 'Scale-up',
+        'rating_grade' => 'B',
+        'status' => SponsorStatus::Skipped,
+        'skip_reason' => SkipReason::BRating,
+    ]);
+
+    expect(Sponsor::query()->scaleUp()->where('rating_grade', 'A')->pluck('id')->all())->toBe([$aRated->id]);
+});
+
 it('scopes to tech sponsors', function () {
     $tech = Sponsor::factory()->create(['is_tech' => true, 'tech_reason' => TechReason::Sic]);
     Sponsor::factory()->create(['is_tech' => false]);
