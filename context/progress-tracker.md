@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 01 complete. Feature 02 not started.
+- Feature 02 complete. Feature 03 not started.
 
 ## Current Goal
 
-- Feature 02: Sponsors table
+- Feature 03: CSV import
 
 ## Completed
 
@@ -61,13 +61,22 @@ Update this file whenever the current phase, active feature, or implementation s
     - `tests/Unit/Config/SponsorFinderConfigTest.php` (6 tests). `composer ci:check` passes (97 tests).
     - `context/*.md` reformatted with `npm run check:fix` (table padding only), so `vp check` passes.
 
+- Feature 02: Sponsors table (2026-10-04):
+    - Migration `2026_10_04_000001_create_sponsors_table`: every spec 02 column, `team_id` cascade on delete, `priority` and `status` indexed, unique on `team_id` + `name` + `town`. Runs, rolls back, and re-runs on local MySQL.
+    - Enums `SponsorStatus`, `TechReason`, `SkipReason` in `app/Enums`.
+    - `App\Models\Sponsor`: `#[Fillable]`, the spec casts, default attributes matching the column defaults, `team()` relation, and `#[Scope]` scopes `pending()`, `readyForLookup()` (pending or ch_done, attempts under `Sponsor::MAX_ATTEMPTS` = 3), `tech()` (`is_tech` true).
+    - `Team::sponsors()` has-many added to the starter kit `Team` model (approved by James).
+    - `SponsorFactory` (team from `Team::factory()`, pending, A-rated Skilled Worker).
+    - `tests/Feature/Sponsors/SponsorModelTest.php` (11 tests): migration up/down, factory, relations, cascade delete, unique per team, enum and other casts, all three scopes. `composer ci:check` passes (108 tests).
+    - First commit (`0cefe7a`) was reverted (`95a4e5c`), then rebuilt unchanged on 2026-10-04: the same eight files, checked by blob hash against `0cefe7a`. Migration rolled back and re-run on local MySQL. `composer ci:check` passes (108 tests).
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 02: Sponsors table.
+- Feature 03: CSV import.
 
 ## Open Questions
 
@@ -75,7 +84,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - Should priority locations become a per-team setting later?
 - Where will the app be hosted, if anywhere beyond local Herd?
 - Default route names use the register's colon form (`Global Business Mobility: Senior or Specialist Worker`, `Global Business Mobility: Graduate Trainee`). Check them against the latest register CSV before spec 03.
-- Larastan sometimes crashes at the local PHP 128M memory limit (it passed on the last run). If it keeps happening: raise `memory_limit` in local php.ini, or add `--memory-limit` to the `types:check` script?
+- The unique index on `team_id` + `name` + `town` does not stop duplicates when `town` is null (MySQL and SQLite treat nulls as distinct). Spec 03 upserts by team, name, and town, so rows with no town could be inserted twice on re-import. Should import store a missing town as an empty string, or match null towns by hand?
+- Larastan sometimes crashes at the local PHP 128M memory limit (it crashed again during Feature 02, then passed on the re-run; `--memory-limit=512M` always passes). If it keeps happening: raise `memory_limit` in local php.ini, or add `--memory-limit` to the `types:check` script?
 
 ## Architecture Decisions
 
