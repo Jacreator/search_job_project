@@ -10,6 +10,7 @@ use App\Models\Team;
 use App\Services\RegisterDownload;
 use App\Services\RegisterImport;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ImportSponsors extends Command
 {
@@ -55,11 +56,9 @@ class ImportSponsors extends Command
         if (is_string($file) && $file !== '') {
             $path = $this->path($file);
         } else {
-            try {
-                $path = $this->latestRegister($download);
-            } catch (RegisterDownloadFailed $exception) {
-                $this->error($exception->getMessage());
+            $path = $this->latestRegister($download);
 
+            if ($path === null) {
                 return self::FAILURE;
             }
         }
@@ -92,18 +91,48 @@ class ImportSponsors extends Command
 
     /**
      * Download the latest register into storage/app/imports, or reuse it if it is already there.
-     *
-     * @throws RegisterDownloadFailed
+     * If the download fails, fall back to the newest register already saved there.
      */
-    private function latestRegister(RegisterDownload $download): string
+    private function latestRegister(RegisterDownload $download): ?string
     {
+        $directory = storage_path('app/imports');
+
         $this->info('Looking for the latest register on GOV.UK...');
 
-        $register = $download->latest(storage_path('app/imports'));
+        try {
+            $register = $download->latest($directory);
+        } catch (RegisterDownloadFailed $exception) {
+            return $this->savedRegister($download, $directory, $exception);
+        }
 
         $this->info(($register->downloaded ? 'Downloaded ' : 'Already downloaded, using ').basename($register->path));
 
         return $register->path;
+    }
+
+    /**
+     * The newest saved register after a failed download, or null (with an error) when there is none.
+     */
+    private function savedRegister(RegisterDownload $download, string $directory, RegisterDownloadFailed $exception): ?string
+    {
+        $path = $download->newestSaved($directory);
+
+        if ($path === null) {
+            $this->error($exception->getMessage());
+            $this->error('No saved register-*.csv was found in storage/app/imports either.');
+
+            return null;
+        }
+
+        $this->warn($exception->getMessage());
+        $this->warn('Importing the newest saved register instead: '.basename($path));
+
+        Log::warning('Sponsor register download failed, imported a saved register instead.', [
+            'reason' => $exception->getMessage(),
+            'file' => basename($path),
+        ]);
+
+        return $path;
     }
 
     /**
