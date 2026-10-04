@@ -28,7 +28,9 @@ Let teams reuse each other's finished lookups to save API calls. Opt-in per team
 
 In `EnrichSponsor`, before any API call:
 
-- Match found: copy `company_number`, `company_status`, `sic_codes`, `is_tech`, `website`, `confidence`, and `status`. Do not copy `confirmed` (each team confirms for itself). No API calls are made.
+- Match found: copy `company_number`, `company_status`, `sic_codes`, `is_tech`, `tech_reason`, `rating_grade`, `skip_reason`, `region`, `priority`, `website`, `confidence`, and `status`. Do not copy `confirmed` (each team confirms for itself). No API calls are made.
+- Once spec 14 is built, also copy `is_ai` and `ai_source`.
+- Once spec 15 is built, also copy `careers_url`, `mentions_developer_roles`, `mentions_visa_sponsorship`, and `careers_checked_at`.
 - If the source row is `confirmed` (a hand-checked website): cap the copied confidence at 74 and set `needs_second_check` to true. 74 is just under the 75 "trusted" threshold, so the row shows amber and lands in review.
 - Copies from unconfirmed source rows keep their confidence and do not set the flag (the score was calculated the same way the team's own pipeline would).
 - No match: run the normal pipeline.
@@ -52,6 +54,9 @@ In `EnrichSponsor`, before any API call:
 - Both teams on: the job copies the result and `Http::fake()` records no requests.
 - Either team off: the job runs the normal pipeline.
 - `confirmed` is never copied.
+- `tech_reason`, `rating_grade`, `skip_reason`, `region`, and `priority` are copied.
+- After spec 14: `is_ai` and `ai_source` are copied (spec 14 adds this test).
+- After spec 15: `careers_url`, `mentions_developer_roles`, `mentions_visa_sponsorship`, and `careers_checked_at` are copied (spec 15 adds this test).
 - Copy from a confirmed source: confidence is 74 and `needs_second_check` is true.
 - Copy from an unconfirmed source: confidence unchanged and `needs_second_check` is false.
 - Confirming or editing the website in the dashboard clears the flag.

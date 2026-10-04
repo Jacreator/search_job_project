@@ -41,6 +41,14 @@ If a new shadcn primitive is needed (for example `table`), install it with `npx 
 
 Rows with `needs_second_check` show a `Badge` reading "Needs second check" (`bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300`) next to the status.
 
+## AI Badge
+
+Rows with `is_ai` show a `Badge` reading "AI" (`bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300`). Added by spec 14.
+
+## Visa Sponsorship Badge
+
+Rows with `mentions_visa_sponsorship` show a `Badge` reading "Visa sponsorship mentioned" (`bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300`). Added by spec 15.
+
 ## Confidence Colours
 
 - 75 to 100: green text
@@ -49,9 +57,9 @@ Rows with `needs_second_check` show a `Badge` reading "Needs second check" (`bg-
 
 ## Layout
 
-- Summary counts per status at the top (one small card per status).
-- Filter row: status, town, minimum confidence, tech only, search by name.
-- Paginated table: name, town, SIC codes, website (link), confidence, status, actions.
+- Summary counts per status at the top (one small card per status), and skip counts per skip reason.
+- Filter row: status, town, region, minimum confidence, tech only, search by name. Later specs add: needs second check (13), AI only (14), developer roles and visa sponsorship (15).
+- Paginated table: name, town, region, SIC codes, website (link), confidence, status, actions. Spec 15 adds the careers URL link and the developer roles and visa sponsorship signals.
 - Row action: edit website inline, mark confirmed.
 
 ## Rules
@@ -60,4 +68,4 @@ Rows with `needs_second_check` show a `Badge` reading "Needs second check" (`bg-
 - Filters live in the query string, so a filtered view can be bookmarked and survives reload.
 - Forms use Inertia (`useForm` or `<Form>`) and Wayfinder route helpers, not hand-written URLs.
 - Show validation errors with the existing `InputError` component.
-- Links to websites open in a new tab with `rel="noopener noreferrer"`.
+- Links to websites and careers pages open in a new tab with `rel="noopener noreferrer"`.

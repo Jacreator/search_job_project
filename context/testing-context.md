@@ -28,7 +28,14 @@ Pest 5 with `pest-plugin-laravel`. Run with `php artisan test`, or `composer tes
 
 ## What Must Be Covered
 
-- Pure logic (name normalisation, tech classification, scoring): unit tests per rule and edge case.
+- Pure logic: unit tests per rule and edge case for:
+  - name normalisation (`CompanyName`)
+  - employer classification (`EmployerClassifier`): SIC, keyword, noise keyword, known employer, none, whole-word matching
+  - AI detection (`AiDetector`): name and text, phrases, short terms that must not match inside other words
+  - rating parsing (`SponsorRating`): A, B, and unexpected values
+  - priority mapping (`PriorityLocations`): case-insensitive towns, unlisted and empty towns
+  - careers signal detection (`CareersSignals`): developer role terms and visa terms, found and not found
+  - website scoring (`WebsiteScorer`)
 - Each service: success, no match / empty result, and API error.
 - Commands: happy path, bad input (missing file, missing header, unknown team), and filters.
 - The enrich job: every pipeline path listed in spec 08, plus running twice on a done row changes nothing.

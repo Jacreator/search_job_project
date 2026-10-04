@@ -19,16 +19,25 @@ Return the homepage (`scheme://host`) of the highest scorer.
 
 ## Verifier
 
-`App\Services\WebsiteVerifier::mentions(string $url, string $name): bool`
+`App\Services\WebsiteVerifier::verify(string $url, string $name): VerifiedPage`
 
-- Fetch the homepage with a 10 second timeout.
+`VerifiedPage` is a readonly value object with:
+
+- `mentionsName` (bool)
+- `text` (string): the stripped, lowercased page text, capped at 200 KB. Empty string when the fetch failed.
+
+Rules:
+
+- Fetch the homepage with a 10 second timeout. Follow the outbound request rules in `security-context.md`.
 - Strip tags, lowercase, look for the first word of the normalised name.
-- Any exception returns false.
+- Any exception returns `mentionsName` false and empty `text`.
+- The text is returned so later steps (AI tagging, spec 14) can reuse it without a second HTTP call. It is not stored.
 
-If the verifier returns true, add 25 to the score (cap 100).
+If `mentionsName` is true, add 25 to the score (cap 100).
 
 ## Check When Done
 
 - Unit tests for scoring with real-looking examples (FourJaw, The Floow, Sumo Digital).
 - Blocked domains are never returned.
-- Verifier test with `Http::fake()`.
+- Verifier tests with `Http::fake()`: name found, name not found, request error.
+- Verifier text is capped at 200 KB.

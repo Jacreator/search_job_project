@@ -1,6 +1,6 @@
 # Agent Rules
 
-This is a Laravel 13 project built on the official Laravel React starter kit (Inertia + React + TypeScript, Fortify auth, teams). Check the installed versions in `composer.json` and `package.json` and follow the conventions for those versions. Do not assume older Laravel file layouts (for example `app/Console/Kernel.php` or `app/Http/Kernel.php`) — middleware, exceptions, and routing are configured in `bootstrap/app.php`, and the schedule lives in `routes/console.php`.
+This is a Laravel 13 project built on the official Laravel React starter kit (Inertia + React + TypeScript, Fortify auth, teams). Check the installed versions in `composer.json` and `package.json` and follow the conventions for those versions. Do not assume older Laravel file layouts (for example `app/Console/Kernel.php` or `app/Http/Kernel.php`). Middleware, exceptions, and routing are configured in `bootstrap/app.php`, and the schedule lives in `routes/console.php`.
 
 Starter kit code (auth, settings, teams, the app shell, and `resources/js/components/ui`) is the foundation. Build sponsor-finder features on top of it; do not rewrite it unless a feature spec says so.
 

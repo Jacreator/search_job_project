@@ -23,7 +23,7 @@
 
 ## Outbound Requests
 
-- The website verifier fetches URLs that came from search results. Only fetch `http` / `https` URLs, use a 10 second timeout, cap the response size, and do not follow redirects to private or local IP ranges.
+- The website verifier (spec 07) and the careers job (spec 15) fetch URLs that came from search results or from the sponsor's own pages. Only fetch `http` / `https` URLs, use a 10 second timeout, cap the response size (page text is capped at 200 KB), and do not follow redirects to private or local IP ranges.
 
 ## Secrets
 
