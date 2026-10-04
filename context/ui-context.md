@@ -17,25 +17,25 @@ The UI is one review dashboard inside the starter kit's logged-in app shell. Kee
 
 Use what is already in `resources/js/components/ui` before adding anything:
 
-| Need           | Component                      |
-| -------------- | ------------------------------ |
-| Card / panels  | `Card`                         |
-| Status badge   | `Badge` with the classes below |
-| Filters        | `Input`, `Select`, `Checkbox`, `Label` |
-| Buttons        | `Button`                       |
-| Feedback       | `sonner` toast                 |
+| Need          | Component                              |
+| ------------- | -------------------------------------- |
+| Card / panels | `Card`                                 |
+| Status badge  | `Badge` with the classes below         |
+| Filters       | `Input`, `Select`, `Checkbox`, `Label` |
+| Buttons       | `Button`                               |
+| Feedback      | `sonner` toast                         |
 
 If a new shadcn primitive is needed (for example `table`), install it with `npx shadcn@latest add <name>` and tell the user first.
 
 ## Status Badges
 
-| Status  | Classes                                                       |
-| ------- | ------------------------------------------------------------- |
-| pending | `bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300`   |
-| ch_done | `bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300`   |
-| done    | `bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300` |
+| Status  | Classes                                                                 |
+| ------- | ----------------------------------------------------------------------- |
+| pending | `bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300`         |
+| ch_done | `bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300`         |
+| done    | `bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300`     |
 | skipped | `bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300` |
-| failed  | `bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300`       |
+| failed  | `bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300`             |
 
 ## Second Check Badge
 
@@ -49,11 +49,11 @@ Rows with `is_ai` show a `Badge` reading "AI" (`bg-indigo-100 text-indigo-700 da
 
 Added by spec 15, from `visa_sponsorship`:
 
-| Value        | Badge text                 | Classes                                                                  |
-| ------------ | -------------------------- | ------------------------------------------------------------------------ |
-| `offered`    | Visa sponsorship offered   | `bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300`     |
-| `not_offered`| No visa sponsorship        | `bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300` |
-| null         | No badge                   |                                                                          |
+| Value         | Badge text               | Classes                                                                 |
+| ------------- | ------------------------ | ----------------------------------------------------------------------- |
+| `offered`     | Visa sponsorship offered | `bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300`     |
+| `not_offered` | No visa sponsorship      | `bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300` |
+| null          | No badge                 |                                                                         |
 
 ## Confidence Colours
 
