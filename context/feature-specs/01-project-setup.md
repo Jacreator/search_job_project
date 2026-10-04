@@ -11,16 +11,16 @@ The Laravel React starter kit is already installed (Laravel 13, PHP 8.3+, Pest, 
 ## Tasks
 
 - Create `config/sponsor-finder.php` with:
-  - `companies_house_key` (`COMPANIES_HOUSE_KEY`)
-  - `brave_key` (`BRAVE_SEARCH_KEY`)
-  - `batch_size` (`SPONSOR_BATCH_SIZE`, default 100)
-  - `rate_per_minute` (`SPONSOR_RATE_PER_MINUTE`, default 30)
-  - `routes` (array of worker routes to import, from `SPONSOR_ROUTES` as a comma-separated list, defaulting to the three routes in `project-overview.md`)
-  - `tech_sic_codes` (see below)
-  - `tech_keywords` (see below)
-  - `noise_keywords` (see below)
-  - `known_employers` (see below)
-  - `priority_locations` (see below)
+    - `companies_house_key` (`COMPANIES_HOUSE_KEY`)
+    - `brave_key` (`BRAVE_SEARCH_KEY`)
+    - `batch_size` (`SPONSOR_BATCH_SIZE`, default 100)
+    - `rate_per_minute` (`SPONSOR_RATE_PER_MINUTE`, default 30)
+    - `routes` (array of worker routes to import, from `SPONSOR_ROUTES` as a comma-separated list, defaulting to the three routes in `project-overview.md`)
+    - `tech_sic_codes` (see below)
+    - `tech_keywords` (see below)
+    - `noise_keywords` (see below)
+    - `known_employers` (see below)
+    - `priority_locations` (see below)
 - Add the env keys to `.env.example` with empty values (route list may be left out so the default applies).
 - Create `storage/app/imports` and `storage/app/exports`, each with a `.gitignore` that ignores everything except itself.
 - Set `APP_NAME` to "Sponsor Finder" in `.env.example`.

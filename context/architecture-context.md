@@ -2,21 +2,21 @@
 
 ## Stack
 
-| Layer            | Technology                                   | Role                                         |
-| ---------------- | -------------------------------------------- | -------------------------------------------- |
-| Framework        | Laravel 13, PHP 8.3+                         | Commands, jobs, scheduler, web app           |
-| Starter kit      | Laravel React starter kit                    | Auth (Fortify), settings, teams, app shell   |
-| Frontend         | Inertia v3 + React 19 + TypeScript           | Pages under `resources/js/pages`             |
-| Components       | shadcn/ui (already in `resources/js/components/ui`) + Lucide icons | UI primitives          |
-| Styling          | Tailwind CSS 4 (Vite)                        | Utility classes, light and dark mode         |
-| Routes in TS     | Laravel Wayfinder                            | Typed route helpers for the frontend         |
-| Database         | MySQL (local dev), SQLite in-memory (tests)  | Sponsors, lookup results, job state          |
-| Queue            | Laravel database queue                       | Background lookups                           |
-| Scheduler        | Laravel scheduler                            | Hourly batch dispatch                        |
-| Company data     | Companies House REST API (free)              | Company number, status, SIC codes            |
-| Web search       | Brave Search API                             | Candidate websites                           |
-| Tests            | Pest + `Http::fake()`                        | Unit and feature tests, no live API calls    |
-| Quality          | Pint, Larastan (level 7), `tsc`, `vp check`  | Style, static analysis, type checks          |
+| Layer        | Technology                                                         | Role                                       |
+| ------------ | ------------------------------------------------------------------ | ------------------------------------------ |
+| Framework    | Laravel 13, PHP 8.3+                                               | Commands, jobs, scheduler, web app         |
+| Starter kit  | Laravel React starter kit                                          | Auth (Fortify), settings, teams, app shell |
+| Frontend     | Inertia v3 + React 19 + TypeScript                                 | Pages under `resources/js/pages`           |
+| Components   | shadcn/ui (already in `resources/js/components/ui`) + Lucide icons | UI primitives                              |
+| Styling      | Tailwind CSS 4 (Vite)                                              | Utility classes, light and dark mode       |
+| Routes in TS | Laravel Wayfinder                                                  | Typed route helpers for the frontend       |
+| Database     | MySQL (local dev), SQLite in-memory (tests)                        | Sponsors, lookup results, job state        |
+| Queue        | Laravel database queue                                             | Background lookups                         |
+| Scheduler    | Laravel scheduler                                                  | Hourly batch dispatch                      |
+| Company data | Companies House REST API (free)                                    | Company number, status, SIC codes          |
+| Web search   | Brave Search API                                                   | Candidate websites                         |
+| Tests        | Pest + `Http::fake()`                                              | Unit and feature tests, no live API calls  |
+| Quality      | Pint, Larastan (level 7), `tsc`, `vp check`                        | Style, static analysis, type checks        |
 
 ## System Boundaries
 
@@ -59,13 +59,13 @@
 `pending` -> `ch_done` -> `done` or `skipped`
 Any step can move to `failed` after the final retry.
 
-| Status    | Meaning                                                          |
-| --------- | ---------------------------------------------------------------- |
-| pending   | Imported, nothing looked up yet                                  |
-| ch_done   | Companies House step finished                                    |
-| skipped   | B-rated, no confident match, not active, or not tech (see `skip_reason`) |
-| done      | Website step finished (website may still be null)                |
-| failed    | Gave up after retries, error saved                               |
+| Status  | Meaning                                                                  |
+| ------- | ------------------------------------------------------------------------ |
+| pending | Imported, nothing looked up yet                                          |
+| ch_done | Companies House step finished                                            |
+| skipped | B-rated, no confident match, not active, or not tech (see `skip_reason`) |
+| done    | Website step finished (website may still be null)                        |
+| failed  | Gave up after retries, error saved                                       |
 
 Every skipped row has a `skip_reason` (`App\Enums\SkipReason`: `NoMatch`, `NotTech`, `Inactive`, `BRating`).
 

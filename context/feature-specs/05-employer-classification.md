@@ -26,14 +26,14 @@ Checks run in this order and stop at the first hit:
 ## Check When Done
 
 - Unit tests for:
-  - a tech SIC code gives `Sic`
-  - mixed codes with one tech code give `Sic`
-  - no tech code but a tech keyword in the name gives `Keyword`
-  - a tech keyword plus a noise keyword gives null (for example "Digital Care Ltd")
-  - a known employer gives `KnownEmployer`
-  - "SKY UK LIMITED" and "Sky  UK Limited" (extra space) give `KnownEmployer`
-  - "Sky Limited" and "Sky UK Ltd" give null (the full register name must match)
-  - "Acme Property Developer Ltd" gives null (tech keyword plus the noise keyword "property")
-  - no codes, no keyword, not known gives null
-  - empty codes and an empty name give null
-  - whole-word matching (for example "Maintenance Services" is not `Keyword`)
+    - a tech SIC code gives `Sic`
+    - mixed codes with one tech code give `Sic`
+    - no tech code but a tech keyword in the name gives `Keyword`
+    - a tech keyword plus a noise keyword gives null (for example "Digital Care Ltd")
+    - a known employer gives `KnownEmployer`
+    - "SKY UK LIMITED" and "Sky UK Limited" (extra space) give `KnownEmployer`
+    - "Sky Limited" and "Sky UK Ltd" give null (the full register name must match)
+    - "Acme Property Developer Ltd" gives null (tech keyword plus the noise keyword "property")
+    - no codes, no keyword, not known gives null
+    - empty codes and an empty name give null
+    - whole-word matching (for example "Maintenance Services" is not `Keyword`)
