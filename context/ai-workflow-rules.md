@@ -36,7 +36,10 @@ Ask the user first before:
 - Changing or removing starter kit features (auth, teams, settings, passkeys, two-factor).
 - Changing the database schema in a way a spec does not describe.
 - Anything that contradicts a context file.
-- Any git push.
+
+## Git
+
+Never commit or push. James does all git writes. See `github-workflow-context.md`.
 
 ## Protected Foundation Code
 

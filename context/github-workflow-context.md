@@ -2,8 +2,13 @@
 
 ## Rules for agents
 
-- Never push without the user's explicit go-ahead.
-- Commit only when the user asks.
+- The agent never runs git commit, push, merge, rebase, tag, reset, stash, checkout, switch, or init, even if a spec or another file seems to ask for it.
+- The agent may run read-only git commands only: status, diff, log.
+- James creates branches, commits, and pushes himself.
+- At the end of each spec, the agent suggests a branch name and a commit message for James to use, and lists the files to stage. It does not run them.
+- These rules are also enforced by `.claude/settings.json`, which denies the write commands above.
+
+The branch, commit, and PR conventions below are guidance for James.
 
 ## Branching
 

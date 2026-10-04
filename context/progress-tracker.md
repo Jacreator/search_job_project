@@ -50,6 +50,8 @@ Update this file whenever the current phase, active feature, or implementation s
   - Spec 14: more AI terms (genai, large language model, mlops, ai-powered).
   - Updated specs 10, 12, 13 and `architecture`, `data-model`, `ui`, `testing`, `code-standards`, `project-overview`.
 
+- Git rule (2026-10-04): the agent never commits or pushes. Added `.claude/settings.json` with deny rules for git write commands. Updated `AGENTS.md`, `ai-workflow-rules.md`, and `github-workflow-context.md`.
+
 ## In Progress
 
 - None.
@@ -63,7 +65,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Which search provider to use long term if Brave limits are too tight.
 - Should priority locations become a per-team setting later?
 - Where will the app be hosted, if anywhere beyond local Herd?
-- Git repo not initialised yet. Initialise when the user says so (no pushing).
+- Git is managed by James. The agent never initialises, commits, or pushes.
 
 ## Architecture Decisions
 
@@ -86,6 +88,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Import, enrich, status, and export stay Artisan commands. Commands take `--team=` (slug).
 - Sponsor editing: owners and admins always; members only when an owner or admin turns on their `can_edit_sponsors` flag (default off). New `TeamPermission::ManageSponsorEditors` for owner and admin.
 - Lookups are shared between teams only when both teams have `share_lookups` on (default off, owners and admins toggle). `confirmed`, `region`, `priority`, `rating_grade`, and `rating_grade_manual` are never shared, and `BRating` rows are never a source. A copy of another team's hand-confirmed website is capped at confidence 74 and flagged `needs_second_check` until this team confirms it.
+- The agent never commits, pushes, or runs any git write command. It may run only `git status`, `git diff`, and `git log`. James does all git writes. Enforced by `.claude/settings.json`.
 - Local `APP_URL` is the Herd URL `http://search_job.test`.
 
 ## Session Notes

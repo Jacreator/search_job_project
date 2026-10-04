@@ -26,4 +26,6 @@ Update `context/progress-tracker.md` after each meaningful implementation change
 
 If implementation changes the architecture, scope, or standards documented in the context files, update the relevant file before continuing.
 
+Never commit or push. James does all git writes. See `context/github-workflow-context.md`.
+
 Ask the user before any major change (new dependency, schema redesign, removing starter kit features, or anything that contradicts a context file).
