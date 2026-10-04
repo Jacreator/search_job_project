@@ -79,6 +79,11 @@ class Sponsor extends Model
     public const MAX_ATTEMPTS = 3;
 
     /**
+     * The register route for Scale-up visa sponsors.
+     */
+    public const SCALE_UP_ROUTE = 'Scale-up';
+
+    /**
      * The model's default values for attributes.
      *
      * @var array<string, mixed>
@@ -133,6 +138,17 @@ class Sponsor extends Model
     protected function tech(Builder $query): void
     {
         $query->where('is_tech', true);
+    }
+
+    /**
+     * Only sponsors licensed for the Scale-up visa route.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function scaleUp(Builder $query): void
+    {
+        $query->where('route', 'like', '%'.self::SCALE_UP_ROUTE.'%');
     }
 
     /**

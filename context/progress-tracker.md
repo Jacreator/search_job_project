@@ -94,6 +94,12 @@ Update this file whenever the current phase, active feature, or implementation s
     - Live check: downloaded `register-2026-10-02.csv` from GOV.UK (identical to the hand download) and re-imported it (0 new, 122,938 existing). A second run reused the file.
     - Updated `architecture-context.md` (invariant 1 exception, boundary, stack row), `project-overview.md`, spec 03, `security-context.md`.
 
+- Fix: find Scale-up visa sponsors (2026-10-04):
+    - `Sponsor::scaleUp()` scope (`route` includes `Sponsor::SCALE_UP_ROUTE`, alone or joined with other routes). No schema change.
+    - Tests: two scope tests in `SponsorModelTest` (alone or joined, and combined with grade A), one in `ImportSponsorsCommandTest`.
+    - Spec 10 gains a Scale-up column and `--scale-up` filter; spec 12 and `ui-context.md` gain a Scale-up badge and "Scale-up only" filter, built when those specs come up.
+    - Local data: 92 Scale-up sponsors in `johns-llc`, all A-rated and pending, 1 in Yorkshire.
+
 ## In Progress
 
 - None.
@@ -135,6 +141,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Import stores a missing town as `''`, never null, so the `team_id` + `name` + `town` unique index catches duplicates (a unique index treats nulls as distinct). The column stays nullable.
 - Larastan runs with `--memory-limit=512M` (`types:check` in `composer.json`), because it crashed at the local 128M PHP limit.
 - `sponsors:import` with no file downloads the latest register from GOV.UK. This is the one exception to "commands never call external APIs". A named file that is missing still fails.
+- Scale-up sponsors are found from `route` with `Sponsor::scaleUp()`, not a separate column.
 - One sponsor per team + name + town. Register rows for the same name and town are merged: routes joined with `, ` (each once), first non-empty county, B beats A. Name and town match ignoring case and accents, like the MySQL collation.
 - Rating grades: "A rating", "A (Premium)" and "A (SME+)" give A. "B rating" gives B. Anything else, including "UK Expansion Worker: Provisional", gives null.
 

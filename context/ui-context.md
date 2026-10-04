@@ -41,6 +41,10 @@ If a new shadcn primitive is needed (for example `table`), install it with `npx 
 
 Rows with `needs_second_check` show a `Badge` reading "Needs second check" (`bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300`) next to the status.
 
+## Scale-up Badge
+
+Rows whose `route` includes Scale-up show a `Badge` reading "Scale-up" (`bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300`). Added by spec 12.
+
 ## AI Badge
 
 Rows with `is_ai` show a `Badge` reading "AI" (`bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300`). Added by spec 14.
@@ -64,7 +68,7 @@ Added by spec 15, from `visa_sponsorship`:
 ## Layout
 
 - Summary counts per status at the top (one small card per status), and skip counts per skip reason.
-- Filter row: status, town, region, minimum confidence, tech only, search by name. Also "Rating missing". Later specs add: needs second check (13), AI only (14), developer roles and visa sponsorship: offered, not offered, unknown (15).
+- Filter row: status, town, region, minimum confidence, tech only, Scale-up only, search by name. Also "Rating missing". Later specs add: needs second check (13), AI only (14), developer roles and visa sponsorship: offered, not offered, unknown (15).
 - Paginated table: name, town, region, rating (A, B, or "Missing", with an A/B select for owners and admins on editable rows), SIC codes, website (link), confidence, status, actions. Spec 15 adds the careers URL link, a developer roles column, and the visa sponsorship badges.
 - Row action: edit website inline, mark confirmed.
 
