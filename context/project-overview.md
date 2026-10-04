@@ -39,7 +39,7 @@ The app is built on the Laravel React starter kit. Users log in, belong to teams
 ### Import
 
 - Read the register CSV row by row (low memory).
-- Keep only worker routes: Skilled Worker, Global Business Mobility Senior or Specialist Worker, Global Business Mobility Graduate Trainee.
+- Keep only worker routes: Skilled Worker, Global Business Mobility Senior or Specialist Worker, Global Business Mobility Graduate Trainee, Scale-up.
 - Import into one team. Upsert by team, name, and town.
 - Parse the A or B rating. Skip B-rated rows by default (configurable).
 - Set region and priority from the town.

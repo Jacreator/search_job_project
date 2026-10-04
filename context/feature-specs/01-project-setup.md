@@ -15,7 +15,7 @@ The Laravel React starter kit is already installed (Laravel 13, PHP 8.3+, Pest, 
     - `brave_key` (`BRAVE_SEARCH_KEY`)
     - `batch_size` (`SPONSOR_BATCH_SIZE`, default 100)
     - `rate_per_minute` (`SPONSOR_RATE_PER_MINUTE`, default 30)
-    - `routes` (array of worker routes to import, from `SPONSOR_ROUTES` as a comma-separated list, defaulting to the three routes in `project-overview.md`)
+    - `routes` (array of worker routes to import, from `SPONSOR_ROUTES` as a comma-separated list, defaulting to the four routes in `project-overview.md`)
     - `tech_sic_codes` (see below)
     - `tech_keywords` (see below)
     - `noise_keywords` (see below)

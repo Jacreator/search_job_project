@@ -11,11 +11,12 @@ it('has the default batch size and rate', function () {
         ->and(config('sponsor-finder.rate_per_minute'))->toBe(30);
 });
 
-it('imports the three worker routes by default', function () {
+it('imports the four worker routes by default', function () {
     expect(config('sponsor-finder.routes'))->toBe([
         'Skilled Worker',
         'Global Business Mobility: Senior or Specialist Worker',
         'Global Business Mobility: Graduate Trainee',
+        'Scale-up',
     ]);
 });
 

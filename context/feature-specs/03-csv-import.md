@@ -15,6 +15,7 @@ The model exists. Add the import command only.
 - Map columns by header name, not position.
 - Keep only rows whose Route is in `config('sponsor-finder.routes')`.
 - Trim names and towns.
+- Store a missing or blank town as an empty string `''`, never null. MySQL and SQLite treat nulls as distinct in a unique index, so a null town would let a re-import insert the same sponsor twice.
 - Upsert on team + name + town. Existing rows keep their lookup results.
 - Insert in chunks of 500 for speed.
 - Show a progress bar and a final count of new rows, existing rows, rows moved to skipped (B rating), and rows moved back to pending (A rating).
@@ -22,7 +23,10 @@ The model exists. Add the import command only.
 
 ## Rating
 
-- Parse `rating_grade` from the "Type & Rating" column, for example "Worker (A rating)" gives `A`. Anything that does not match gives null.
+- Parse `rating_grade` from the "Type & Rating" column. The register wraps the grade, for example "Worker (A rating)".
+    - "A rating", "A (Premium)" and "A (SME+)" give `A`.
+    - "B rating" gives `B`.
+    - Anything else gives null, including "UK Expansion Worker: Provisional".
 - Parsing lives in a small pure helper, `App\Support\SponsorRating::grade(string): ?string`.
 - The status rules for a grade change live in one place, `App\Services\RatingChange::apply(Sponsor $sponsor, string $grade)`, used by both import and the dashboard (spec 12).
 - Add `skip_b_rated` to `config/sponsor-finder.php` (`SPONSOR_SKIP_B_RATED`, default true).
@@ -58,7 +62,8 @@ When `skip_b_rated` is false, only `rating_grade` is updated.
 - Re-importing the same file creates no duplicates and keeps existing websites.
 - Importing the same file into a second team creates separate rows.
 - Rows with other routes are ignored.
-- `rating_grade` is parsed for A and B rows, and null for an unexpected value.
+- Re-importing a row with no town creates no duplicate (the town is stored as `''`).
+- `SponsorRating::grade()` unit tests, one per case: "A rating", "A (Premium)" and "A (SME+)" give `A`; "B rating" gives `B`; "UK Expansion Worker: Provisional" gives null; any other value gives null.
 - B-rated rows are skipped with reason `BRating` when `skip_b_rated` is true, and imported as `pending` when it is false.
 - Re-import A to B: a `done` row becomes `skipped` with `BRating`, and keeps its website, lookup results, and `confirmed`.
 - Re-import B to A: a row skipped with `BRating` becomes `pending` with no skip reason, and keeps its lookup results.
