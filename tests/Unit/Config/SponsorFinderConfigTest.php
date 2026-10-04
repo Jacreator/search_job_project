@@ -20,6 +20,10 @@ it('imports the four worker routes by default', function () {
     ]);
 });
 
+it('skips B-rated sponsors by default', function () {
+    expect(config('sponsor-finder.skip_b_rated'))->toBeTrue();
+});
+
 it('stores tech SIC codes as strings', function () {
     expect(config('sponsor-finder.tech_sic_codes'))
         ->toHaveCount(10)

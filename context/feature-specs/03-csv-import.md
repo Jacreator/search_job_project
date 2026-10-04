@@ -7,6 +7,10 @@ The model exists. Add the import command only.
 `php artisan sponsors:import {file} {--team=}`
 
 - `--team` is the team slug and is required.
+- `{file}` is a path, or a file name in `storage/app/imports`. A named file that does not exist fails; it never triggers a download.
+- `{file}` is optional. When it is left out, `App\Services\RegisterDownload` reads the GOV.UK content API (`register_content_url` in config), takes the first `text/csv` attachment on `assets.publishing.service.gov.uk`, and saves it as `storage/app/imports/register-YYYY-MM-DD.csv` (date from the GOV.UK file name). A register already saved under that name is reused. The download streams to a `.part` file and is moved into place only when complete, non-empty, and at most 50 MB. Any failure ends the command with a clear message and imports nothing.
+- The team is checked before anything is downloaded.
+- The command stays thin. Reading and upserting live in `App\Services\RegisterImport`, which returns an `ImportSummary`.
 
 ## Rules
 
@@ -20,10 +24,21 @@ The model exists. Add the import command only.
 - Insert in chunks of 500 for speed.
 - Show a progress bar and a final count of new rows, existing rows, rows moved to skipped (B rating), and rows moved back to pending (A rating).
 - Fail with a clear message if the file or a required header is missing.
+- Re-import updates the register fields of existing rows (`county`, `route`, `rating`, `region`, `priority`, and the grade rules below). Lookup results are never touched.
+
+## One Sponsor Per Name And Town
+
+The register has one row per organisation per route, and sometimes repeats a row. All rows with the same name and town become one sponsor (decided 2026-10-04):
+
+- `route` holds every matching worker route, each once, joined with `, ` in file order (for example "Skilled Worker, Scale-up"). Re-import rebuilds it from the file.
+- `county` is the first non-empty county.
+- A B grade beats an A grade. `rating` holds the text of the row that gave the grade.
+- Name and town are matched ignoring case and accents, like the MySQL collation (`utf8mb4_unicode_ci`), so "186 LONDON LIMITED" and "186 London Limited" in the same town are one sponsor. The first spelling is kept.
+- Rows for one sponsor are merged even when they fall in different chunks of 500.
 
 ## Rating
 
-- Parse `rating_grade` from the "Type & Rating" column. The register wraps the grade, for example "Worker (A rating)".
+- Parse `rating_grade` from the "Type & Rating" column. The register wraps the grade in "Worker (...)" or, on Graduate Trainee rows, "Temporary Worker (...)", for example "Worker (A rating)". Case and extra spaces are ignored.
     - "A rating", "A (Premium)" and "A (SME+)" give `A`.
     - "B rating" gives `B`.
     - Anything else gives null, including "UK Expansion Worker: Provisional".
@@ -63,6 +78,8 @@ When `skip_b_rated` is false, only `rating_grade` is updated.
 - Importing the same file into a second team creates separate rows.
 - Rows with other routes are ignored.
 - Re-importing a row with no town creates no duplicate (the town is stored as `''`).
+- With no file: downloads and imports the latest register; reuses an already downloaded one; fails clearly (and leaves no file) when the page fails, has no CSV, links off the assets host, or the CSV download fails or is empty. A missing named file never downloads. All HTTP is faked.
+- Rows with the same name and town become one sponsor with joined routes, including across chunks and case variants. A repeated route is listed once. B beats A.
 - `SponsorRating::grade()` unit tests, one per case: "A rating", "A (Premium)" and "A (SME+)" give `A`; "B rating" gives `B`; "UK Expansion Worker: Provisional" gives null; any other value gives null.
 - B-rated rows are skipped with reason `BRating` when `skip_b_rated` is true, and imported as `pending` when it is false.
 - Re-import A to B: a `done` row becomes `skipped` with `BRating`, and keeps its website, lookup results, and `confirmed`.

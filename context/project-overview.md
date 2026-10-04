@@ -22,7 +22,7 @@ The app is built on the Laravel React starter kit. Users log in, belong to teams
 
 ## Core Flow
 
-1. User downloads the latest register CSV from GOV.UK.
+1. User downloads the latest register CSV from GOV.UK, or lets the import command download it.
 2. User runs the import command for their team. Each row gets a region and priority from its town. B-rated rows are skipped.
 3. The scheduler queues a batch of pending sponsors every hour, highest priority first.
 4. A queued job looks up each sponsor on Companies House and saves its SIC codes and status.

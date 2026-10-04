@@ -38,5 +38,6 @@
         <env name="SPONSOR_BATCH_SIZE" value=""/>
         <env name="SPONSOR_RATE_PER_MINUTE" value=""/>
         <env name="SPONSOR_ROUTES" value=""/>
+        <env name="SPONSOR_SKIP_B_RATED" value=""/>
     </php>
 </phpunit>

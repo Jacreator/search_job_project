@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 02 complete. Feature 03 not started.
+- Feature 03 complete. Feature 04 not started.
 
 ## Current Goal
 
-- Feature 03: CSV import
+- Feature 04: Companies House client
 
 ## Completed
 
@@ -78,13 +78,29 @@ Update this file whenever the current phase, active feature, or implementation s
     - `data-model-context.md`: town stored as `''` at import.
     - `SponsorModelTest`: new test that two sponsors with the same name and town `''` in one team are refused. `composer ci:check` passes (109 tests).
 
+- Feature 03: CSV import (2026-10-04):
+    - `php artisan sponsors:import {file} --team=` (`app/Console/Commands/ImportSponsors.php`). `{file}` is a path or a file name in `storage/app/imports`. Fails clearly on no `--team`, an unknown team, a missing file, an empty file, or a missing header.
+    - `App\Services\RegisterImport`: streams the CSV with `SplFileObject`, maps columns by header, keeps the configured routes, trims and caps cells at 255, stores a missing town as `''`, upserts in chunks of 500 in a transaction, and returns `ImportSummary` (rows read, ignored, new, existing, moved to skipped, moved back to pending). Existing rows get their register fields updated; lookup results are never touched.
+    - `App\Support\SponsorRating::grade()`, `App\Support\PriorityLocations::for()` (with `PriorityLocation` value object), `App\Services\RatingChange::apply()` (sets grade and status, does not save; callers handle `rating_grade_manual`), `App\Exceptions\InvalidRegisterFile`.
+    - `skip_b_rated` config (`SPONSOR_SKIP_B_RATED`, empty means true), added to `.env.example` and pinned empty in `phpunit.xml`.
+    - `Sponsor::$rating_grade` docblock narrowed to `'A'|'B'|null`.
+    - Tests: `tests/Feature/Sponsors/ImportSponsorsCommandTest.php` (29), `tests/Unit/Support/SponsorRatingTest.php`, `tests/Unit/Support/PriorityLocationsTest.php`, `tests/Unit/Services/RatingChangeTest.php`, config test for `skip_b_rated`, fixture `tests/Fixtures/register/workers.csv`. `composer ci:check` passes (172 tests).
+    - Real register (`storage/app/imports/register-2026-10-02.csv`, downloaded from GOV.UK, git-ignored) into local team `johns-llc`: 143,138 rows read, 8,866 ignored (other routes), 122,938 new sponsors. 87 B-rated skipped with `b_rating`, 647 Sheffield, 3,836 Yorkshire, 9,916 with more than one route. Took 11 s and 64 MB peak. Re-import: 0 new, 122,938 existing, 0 moved, 9 s.
+
+- Register download (2026-10-04, approved by James as an exception to invariant 1):
+    - `sponsors:import --team=` with no file downloads the latest register through `App\Services\RegisterDownload` (GOV.UK content API, `register_content_url` in config) into `storage/app/imports/register-YYYY-MM-DD.csv`, reuses it if already there, then imports. Returns a `RegisterFile` value object; failures throw `App\Exceptions\RegisterDownloadFailed`.
+    - Only `text/csv` attachments on `https://assets.publishing.service.gov.uk` are used. Streams to a `.part` file, rejects empty or over 50 MB, then renames. A missing named file still fails and never downloads. The team is checked first.
+    - `tests/Feature/Sponsors/ImportLatestRegisterTest.php` (9 tests, all HTTP faked, `Sleep::fake()`), fixture `tests/Fixtures/gov-uk/register-content.json`.
+    - Live check: downloaded `register-2026-10-02.csv` from GOV.UK (identical to the hand download) and re-imported it (0 new, 122,938 existing). A second run reused the file.
+    - Updated `architecture-context.md` (invariant 1 exception, boundary, stack row), `project-overview.md`, spec 03, `security-context.md`.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 03: CSV import.
+- Feature 04: Companies House client.
 
 ## Open Questions
 
@@ -118,6 +134,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - Default route names are correct in the register's colon form (`Global Business Mobility: Senior or Specialist Worker`, `Global Business Mobility: Graduate Trainee`), checked against the 2026-10-02 register. `Scale-up` is a fourth default route.
 - Import stores a missing town as `''`, never null, so the `team_id` + `name` + `town` unique index catches duplicates (a unique index treats nulls as distinct). The column stays nullable.
 - Larastan runs with `--memory-limit=512M` (`types:check` in `composer.json`), because it crashed at the local 128M PHP limit.
+- `sponsors:import` with no file downloads the latest register from GOV.UK. This is the one exception to "commands never call external APIs". A named file that is missing still fails.
+- One sponsor per team + name + town. Register rows for the same name and town are merged: routes joined with `, ` (each once), first non-empty county, B beats A. Name and town match ignoring case and accents, like the MySQL collation.
 - Rating grades: "A rating", "A (Premium)" and "A (SME+)" give A. "B rating" gives B. Anything else, including "UK Expansion Worker: Provisional", gives null.
 
 ## Session Notes

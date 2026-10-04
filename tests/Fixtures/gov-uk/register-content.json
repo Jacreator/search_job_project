@@ -1,0 +1,21 @@
+{
+    "title": "Register of licensed sponsors: workers",
+    "public_updated_at": "1999-01-01T09:00:00+00:00",
+    "details": {
+        "attachments": [
+            {
+                "title": "Guidance notes",
+                "url": "https://assets.publishing.service.gov.uk/media/aaaa/guidance.pdf",
+                "content_type": "application/pdf",
+                "filename": "guidance.pdf"
+            },
+            {
+                "title": "Register of Worker and Temporary Worker licensed sponsors",
+                "url": "https://assets.publishing.service.gov.uk/media/bbbb/SP_-_Worker_and_Temporary_Worker_Web_Register_-_1999-01-01.csv",
+                "content_type": "text/csv",
+                "filename": "SP_-_Worker_and_Temporary_Worker_Web_Register_-_1999-01-01.csv",
+                "file_size": 812
+            }
+        ]
+    }
+}

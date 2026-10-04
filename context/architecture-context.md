@@ -15,6 +15,7 @@
 | Scheduler    | Laravel scheduler                                                  | Hourly batch dispatch                      |
 | Company data | Companies House REST API (free)                                    | Company number, status, SIC codes          |
 | Web search   | Brave Search API                                                   | Candidate websites                         |
+| Register     | GOV.UK content API                                                 | Latest register CSV (import download)      |
 | Tests        | Pest + `Http::fake()`                                              | Unit and feature tests, no live API calls  |
 | Quality      | Pint, Larastan (level 7), `tsc`, `vp check`                        | Style, static analysis, type checks        |
 
@@ -29,6 +30,8 @@
 - `app/Services/WebsiteVerifier` - loads a homepage, checks for the company name, and returns the page text (`VerifiedPage`).
 - `app/Services/SharedLookup` - finds a reusable lookup from another sharing team. Database only.
 - `app/Services/RatingChange` - applies the status rules for a rating change. Used by import and the dashboard.
+- `app/Services/RegisterDownload` - finds the latest register CSV through the GOV.UK content API and saves it to `storage/app/imports`. All GOV.UK HTTP calls.
+- `app/Services/RegisterImport` - reads the register CSV row by row and upserts one team's sponsors in chunks. Returns an `ImportSummary`.
 - `app/Support` - small pure helpers: `CompanyName` (normalisation), `EmployerClassifier`, `TermMatcher` (shared whole-word matching), `AiDetector`, `SponsorRating`, `PriorityLocations`, `CareersSignals`.
 - `app/Enums` - `SponsorStatus`, `TechReason`, `SkipReason`, `VisaSponsorship`.
 - `app/Http/Controllers/Sponsors` + `app/Http/Requests/Sponsors` - review dashboard only.
@@ -115,7 +118,7 @@ Lists live in the config file itself: `tech_sic_codes`, `tech_keywords`, `noise_
 
 ## Invariants
 
-1. Commands never call external APIs directly. They dispatch jobs.
+1. Commands never call external APIs directly. They dispatch jobs. One exception: `sponsors:import` with no file downloads the latest register from GOV.UK through `RegisterDownload` (one free, unrated request pair, approved 2026-10-04).
 2. Each job handles exactly one sponsor and is safe to run twice.
 3. A row never skips a pipeline state. Each step checks the current status first. (Exception: rating changes, see Pipeline States.)
 4. Search credits are only spent on active tech sponsors.
