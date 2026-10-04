@@ -29,6 +29,27 @@ Update this file whenever the current phase, active feature, or implementation s
   - Old spec 14 (careers page, later) replaced by spec 15 Careers Page and Hiring Signals, now core scope, with its own job, limiter, command, and schedule.
   - Spec 13 now also copies the new fields. Updated specs 01, 02, 03, 07, 08, 09, 10, 12, 13 and `project-overview`, `architecture`, `data-model`, `ui`, `testing`, `security`, `code-standards`, and `AGENTS.md`.
 
+- Context change, four fixes (2026-10-04). Docs only, no code:
+  - Spec 01: `known_employers` starter list of 30 employers, with a note to check names against the register. "property" added to noise keywords.
+  - Spec 03: rating changes on re-import (A to B, B to A), with summary counts and tests. Closes the open question.
+  - Spec 05: tests for "SKY UK LIMITED" and "Acme Property Developer Ltd".
+  - Spec 13: stopped copying `region`, `priority`, and `rating_grade`. `BRating` rows are never a source.
+  - Spec 15: visa terms narrowed (no bare "sponsorship"), "node" replaced by "node.js", with tests.
+  - Updated `architecture-context.md`, `data-model-context.md`, and `testing-context.md` to match.
+
+- Context change, follow-up answers (2026-10-04). Docs only, no code:
+  - Missing rating grades: owners and admins set them in the dashboard (spec 12, new `rating_grade_manual` column in spec 02). Import never clears a grade, and a register grade replaces a hand-set one. Shared `RatingChange` service (spec 03).
+  - Careers signals use whole-word and whole-phrase matching (spec 15).
+  - Known employers match the full register name, case-insensitive (specs 01 and 05).
+  - Updated `architecture-context.md`, `data-model-context.md`, `security-context.md`, `ui-context.md`, `testing-context.md`, and spec 13.
+
+- Context change, job-ad wording (2026-10-04). Docs only, no code:
+  - New `TermMatcher` (spec 14): whole words or phrases, plural "s", hyphens as spaces, curly apostrophes as straight. Used by `AiDetector` and `CareersSignals`.
+  - Spec 15: `mentions_visa_sponsorship` replaced by `visa_sponsorship` (`offered`, `not_offered`, null) with offer, refusal, and right to work term lists. Refusal beats offer.
+  - Spec 15: more role titles, careers link wording, and job board hosts (Workday, SuccessFactors, SmartRecruiters, Pinpoint, Personio, Breezy).
+  - Spec 14: more AI terms (genai, large language model, mlops, ai-powered).
+  - Updated specs 10, 12, 13 and `architecture`, `data-model`, `ui`, `testing`, `code-standards`, `project-overview`.
+
 ## In Progress
 
 - None.
@@ -41,7 +62,6 @@ Update this file whenever the current phase, active feature, or implementation s
 
 - Which search provider to use long term if Brave limits are too tight.
 - Should priority locations become a per-team setting later?
-- On re-import, should a row whose rating changes be updated (for example an A row that becomes B moves to skipped, or a B row that becomes A goes back to pending)? Until decided, spec 03 only applies the B-rated skip to new rows.
 - Where will the app be hosted, if anywhere beyond local Herd?
 - Git repo not initialised yet. Initialise when the user says so (no pushing).
 
@@ -51,6 +71,12 @@ Update this file whenever the current phase, active feature, or implementation s
 - AI tagging uses the name, then the homepage text the verifier already fetched. No extra HTTP call.
 - Sponsors get a region and priority from their town at import. Sheffield is highest. Enrich and careers queues run highest priority first.
 - B-rated sponsors are skipped at import by default (`skip_b_rated`), because as far as the user knows they cannot issue new certificates of sponsorship.
+- Re-import updates `rating_grade`. With `skip_b_rated` on: A to B sets `skipped` with `BRating` whatever the status, keeping results, website, and `confirmed`. B to A on a `BRating` row sets `pending` and clears `skip_reason`, keeping results. Rows skipped for other reasons are not changed. The import summary reports both counts.
+- `known_employers` ships with a starter list of 30 large UK employers. The user checks each name against the latest register CSV and can add more. Matching uses the full register name, ignoring only case and extra spaces.
+- Missing rating grades are set by owners or admins in the dashboard. Import never clears a stored grade. A register grade always replaces a hand-set one. All grade changes go through `RatingChange`.
+- Careers signal and AI term matching goes through `TermMatcher`: whole word or phrase, case-insensitive, plural "s", hyphens as spaces.
+- Visa sponsorship is three-state (`offered`, `not_offered`, null). Refusal wording beats offer wording, and a right to work line alone counts as not offered.
+- Visa terms exclude bare "sponsorship". Developer role terms use "node.js", not "node". "property" is a noise keyword.
 - Every skipped row has a `skip_reason`.
 - The careers page finder is core scope (spec 15). It runs after `done`, has its own `careers-pages` limiter, and never calls paid APIs.
 - No confident Companies House match means the row is skipped, not guessed.
@@ -59,7 +85,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Sponsor data is scoped per team (`team_id` on `sponsors`). API keys and the rate limiters are shared.
 - Import, enrich, status, and export stay Artisan commands. Commands take `--team=` (slug).
 - Sponsor editing: owners and admins always; members only when an owner or admin turns on their `can_edit_sponsors` flag (default off). New `TeamPermission::ManageSponsorEditors` for owner and admin.
-- Lookups are shared between teams only when both teams have `share_lookups` on (default off, owners and admins toggle). `confirmed` is never shared. A copy of another team's hand-confirmed website is capped at confidence 74 and flagged `needs_second_check` until this team confirms it.
+- Lookups are shared between teams only when both teams have `share_lookups` on (default off, owners and admins toggle). `confirmed`, `region`, `priority`, `rating_grade`, and `rating_grade_manual` are never shared, and `BRating` rows are never a source. A copy of another team's hand-confirmed website is capped at confidence 74 and flagged `needs_second_check` until this team confirms it.
 - Local `APP_URL` is the Herd URL `http://search_job.test`.
 
 ## Session Notes

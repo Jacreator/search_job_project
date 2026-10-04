@@ -12,6 +12,7 @@
 - Controllers resolve sponsors through the team (`$team->sponsors()`), so a sponsor ID from another team returns 404. Use scoped route model binding (`->scopeBindings()`) for `/{current_team}/sponsors/{sponsor}`.
 - Updating a sponsor is checked in the Form Request's `authorize()` via a `SponsorPolicy`: the sponsor's team must be one the user belongs to, and `User::canEditSponsors($team)` must be true.
 - Who may edit sponsors (spec 11): owners and admins always; members only when an owner or admin has switched their `can_edit_sponsors` flag on (default off). Every member can view.
+- Setting a missing rating grade (spec 12) is for owners and admins only, checked by `SponsorPolicy::setRating`. Members cannot, even with `can_edit_sponsors`. Grades from the register cannot be changed by hand.
 
 ## Input Handling
 

@@ -30,14 +30,18 @@ Pest 5 with `pest-plugin-laravel`. Run with `php artisan test`, or `composer tes
 
 - Pure logic: unit tests per rule and edge case for:
   - name normalisation (`CompanyName`)
-  - employer classification (`EmployerClassifier`): SIC, keyword, noise keyword, known employer, none, whole-word matching
+  - employer classification (`EmployerClassifier`): SIC, keyword, noise keyword (including "property"), known employer by full register name ("SKY UK LIMITED" matches, "Sky Limited" does not), none, whole-word matching
+  - term matching (`TermMatcher`): whole words and phrases, plural "s", hyphen and space forms, curly and straight apostrophes, no match inside other words
   - AI detection (`AiDetector`): name and text, phrases, short terms that must not match inside other words
   - rating parsing (`SponsorRating`): A, B, and unexpected values
   - priority mapping (`PriorityLocations`): case-insensitive towns, unlisted and empty towns
-  - careers signal detection (`CareersSignals`): developer role terms and visa terms, found and not found
+  - careers signal detection (`CareersSignals`): developer role terms found and not found (with plurals and hyphen forms), "node.js" matched but a plain "node" not, "phpunit" is not "php", visa offered, visa refused, refusal beating offer, right to work alone as not offered, "event sponsorship" as null
   - website scoring (`WebsiteScorer`)
 - Each service: success, no match / empty result, and API error.
 - Commands: happy path, bad input (missing file, missing header, unknown team), and filters.
+- Import rating changes on re-import: A to B, B to A, B to A on a row skipped for another reason, no change, unparseable value keeps the stored grade, missing to B, and register grade replacing a hand-set one.
+- Setting a missing rating in the dashboard: owner and admin allowed, member refused, register grade refused, invalid grade rejected.
+- Shared lookups: `region`, `priority`, `rating_grade`, and `rating_grade_manual` are never copied, and `BRating` rows are never a source.
 - The enrich job: every pipeline path listed in spec 08, plus running twice on a done row changes nothing.
 - Every web route: happy path, validation failure, guest redirected to login, and a user from another team getting 404 or 403.
 

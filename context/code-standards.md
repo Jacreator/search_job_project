@@ -23,7 +23,7 @@
 - Jobs implement `ShouldQueue`, set `$tries`, `$backoff`, and use the `RateLimited` middleware.
 - Use `Http::timeout()` and `->retry()` on every outbound call.
 - Use `lazy()` or `chunkById()` for large queries. Never `all()` on `sponsors`.
-- Use enums for fixed value sets (`App\Enums\SponsorStatus`, `TechReason`, `SkipReason`).
+- Use enums for fixed value sets (`App\Enums\SponsorStatus`, `TechReason`, `SkipReason`, `VisaSponsorship`).
 - Controllers stay thin. Validation and authorisation go in a Form Request.
 - Load sponsors through the current team (for example `$team->sponsors()`), never `Sponsor::find()` in a web request.
 

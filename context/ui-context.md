@@ -45,9 +45,15 @@ Rows with `needs_second_check` show a `Badge` reading "Needs second check" (`bg-
 
 Rows with `is_ai` show a `Badge` reading "AI" (`bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300`). Added by spec 14.
 
-## Visa Sponsorship Badge
+## Visa Sponsorship Badges
 
-Rows with `mentions_visa_sponsorship` show a `Badge` reading "Visa sponsorship mentioned" (`bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300`). Added by spec 15.
+Added by spec 15, from `visa_sponsorship`:
+
+| Value        | Badge text                 | Classes                                                                  |
+| ------------ | -------------------------- | ------------------------------------------------------------------------ |
+| `offered`    | Visa sponsorship offered   | `bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300`     |
+| `not_offered`| No visa sponsorship        | `bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300` |
+| null         | No badge                   |                                                                          |
 
 ## Confidence Colours
 
@@ -58,8 +64,8 @@ Rows with `mentions_visa_sponsorship` show a `Badge` reading "Visa sponsorship m
 ## Layout
 
 - Summary counts per status at the top (one small card per status), and skip counts per skip reason.
-- Filter row: status, town, region, minimum confidence, tech only, search by name. Later specs add: needs second check (13), AI only (14), developer roles and visa sponsorship (15).
-- Paginated table: name, town, region, SIC codes, website (link), confidence, status, actions. Spec 15 adds the careers URL link and the developer roles and visa sponsorship signals.
+- Filter row: status, town, region, minimum confidence, tech only, search by name. Also "Rating missing". Later specs add: needs second check (13), AI only (14), developer roles and visa sponsorship: offered, not offered, unknown (15).
+- Paginated table: name, town, region, rating (A, B, or "Missing", with an A/B select for owners and admins on editable rows), SIC codes, website (link), confidence, status, actions. Spec 15 adds the careers URL link, a developer roles column, and the visa sponsorship badges.
 - Row action: edit website inline, mark confirmed.
 
 ## Rules

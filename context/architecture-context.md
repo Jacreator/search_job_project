@@ -28,8 +28,9 @@
 - `app/Services/WebsiteScorer` - pure scoring logic. No HTTP.
 - `app/Services/WebsiteVerifier` - loads a homepage, checks for the company name, and returns the page text (`VerifiedPage`).
 - `app/Services/SharedLookup` - finds a reusable lookup from another sharing team. Database only.
-- `app/Support` - small pure helpers: `CompanyName` (normalisation), `EmployerClassifier`, `AiDetector`, `SponsorRating`, `PriorityLocations`, `CareersSignals`.
-- `app/Enums` - `SponsorStatus`, `TechReason`, `SkipReason`.
+- `app/Services/RatingChange` - applies the status rules for a rating change. Used by import and the dashboard.
+- `app/Support` - small pure helpers: `CompanyName` (normalisation), `EmployerClassifier`, `TermMatcher` (shared whole-word matching), `AiDetector`, `SponsorRating`, `PriorityLocations`, `CareersSignals`.
+- `app/Enums` - `SponsorStatus`, `TechReason`, `SkipReason`, `VisaSponsorship`.
 - `app/Http/Controllers/Sponsors` + `app/Http/Requests/Sponsors` - review dashboard only.
 - `resources/js/pages/sponsors` - review dashboard pages.
 - `routes/web.php` - dashboard routes, inside the existing `{current_team}` group.
@@ -44,6 +45,7 @@
 - Commands take a `--team=` option (team slug) where they read or write one team's data.
 - API keys and the rate limiters are shared across all teams. They live in `.env`, not per team.
 - Teams can opt in to sharing finished lookups (`teams.share_lookups`, spec 13). Results are reused only between teams that both opted in.
+- `region`, `priority`, `rating_grade`, and `rating_grade_manual` are never shared. Each team gets them from its own import. Rows skipped with `BRating` are never used as a shared source.
 
 ## Storage Model
 
@@ -67,17 +69,23 @@ Any step can move to `failed` after the final retry.
 
 Every skipped row has a `skip_reason` (`App\Enums\SkipReason`: `NoMatch`, `NotTech`, `Inactive`, `BRating`).
 
+Rating changes are the only thing that can move a row backwards or sideways, through `RatingChange` (spec 03), from import or from an owner or admin setting a missing grade in the dashboard (spec 12): B moves any row to `skipped` with `BRating`, and A moves a `BRating` row back to `pending`. This is the one exception to invariant 3.
+
 The careers check runs after a row is `done`. It does not change `status`. Its progress is tracked by `careers_checked_at`.
 
 ## Classification And Tagging
 
-- `EmployerClassifier` decides tech, in order: SIC code, then name keyword (with no noise keyword), then known employer. The result is saved as `tech_reason` (`App\Enums\TechReason`).
+- `EmployerClassifier` decides tech, in order: SIC code, then name keyword (with no noise keyword), then known employer (full register name, case-insensitive). The result is saved as `tech_reason` (`App\Enums\TechReason`).
 - `AiDetector` tags AI companies from the name, then from the homepage text the verifier already fetched.
+- `TermMatcher` is the one place term matching happens (AI terms and careers signals): case-insensitive, whole words or phrases, plural "s" allowed, hyphens treated as spaces, curly apostrophes treated as straight.
+- `CareersSignals` sets `visa_sponsorship` to `offered` or `not_offered`. Refusal wording beats offer wording. A right to work line counts as not offered only when there is no offer.
 
 ## Rating
 
 - The register "Type & Rating" column is parsed into `rating_grade` (`A` or `B`).
 - As far as the user knows, B-rated sponsors cannot issue new certificates of sponsorship. So B-rated rows are skipped at import by default. The `skip_b_rated` setting exists so this can be changed if that turns out to be wrong.
+- Re-import updates `rating_grade` on existing rows. With `skip_b_rated` on, A to B skips the row (keeping its results), and B to A returns a `BRating` row to `pending`. Rows skipped for other reasons are not touched.
+- An unparseable register value never clears a stored grade. Owners and admins can set a missing grade by hand in the dashboard (`rating_grade_manual`). A later register grade replaces a hand-set one.
 
 ## Location Priority
 
@@ -103,15 +111,15 @@ All tunable values live in `config/sponsor-finder.php`. Values that change per e
 - `SPONSOR_ROUTES` (worker routes to import)
 - `SPONSOR_SKIP_B_RATED` (default true)
 
-Lists live in the config file itself: `tech_sic_codes`, `tech_keywords`, `noise_keywords`, `known_employers`, `priority_locations`, `ai_keywords`, `job_board_hosts`, `developer_role_terms`, `visa_terms`.
+Lists live in the config file itself: `tech_sic_codes`, `tech_keywords`, `noise_keywords`, `known_employers` (starter list the user checks against the register), `priority_locations`, `ai_keywords`, `careers_link_terms`, `job_board_hosts`, `developer_role_terms`, `visa_offer_terms`, `visa_refusal_terms`, `right_to_work_terms`.
 
 ## Invariants
 
 1. Commands never call external APIs directly. They dispatch jobs.
 2. Each job handles exactly one sponsor and is safe to run twice.
-3. A row never skips a pipeline state. Each step checks the current status first.
+3. A row never skips a pipeline state. Each step checks the current status first. (Exception: rating changes, see Pipeline States.)
 4. Search credits are only spent on active tech sponsors.
-5. Scoring, classification, AI detection, rating parsing, priority mapping, and careers signal detection have no side effects and are fully unit tested.
+5. Scoring, classification, AI detection, rating parsing, priority mapping, and term matching, and careers signal detection have no side effects and are fully unit tested.
 6. Tests never hit live APIs.
 7. Every sponsor query from a web request is scoped to the current team.
 8. Careers checks never call paid APIs. They only fetch the sponsor's own site and the listed job board hosts.

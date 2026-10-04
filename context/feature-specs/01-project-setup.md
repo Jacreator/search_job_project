@@ -19,7 +19,7 @@ The Laravel React starter kit is already installed (Laravel 13, PHP 8.3+, Pest, 
   - `tech_sic_codes` (see below)
   - `tech_keywords` (see below)
   - `noise_keywords` (see below)
-  - `known_employers` (empty array, with a comment saying the user fills it with employer names)
+  - `known_employers` (see below)
   - `priority_locations` (see below)
 - Add the env keys to `.env.example` with empty values (route list may be left out so the default applies).
 - Create `storage/app/imports` and `storage/app/exports`, each with a `.gitignore` that ignores everything except itself.
@@ -37,7 +37,17 @@ Store them as strings (SIC codes from Companies House are strings).
 
 ## Noise Keywords
 
-`care, nursing, food, restaurant, construction, cleaning, recruitment, beauty, logistics, transport, dental, pharmacy, school`
+`care, nursing, food, restaurant, construction, cleaning, recruitment, beauty, logistics, transport, dental, pharmacy, school, property`
+
+## Known Employers
+
+Starter list, written as the names appear on the sponsor register:
+
+`Sky UK Limited, British Telecommunications plc, Barclays Bank UK PLC, Lloyds Bank plc, HSBC UK Bank plc, National Westminster Bank plc, Santander UK plc, Nationwide Building Society, Yorkshire Building Society, Leeds Building Society, Skipton Building Society, Jet2.com Limited, Asda Stores Limited, Wm Morrison Supermarkets Limited, Tesco Stores Limited, Sainsbury's Supermarkets Ltd, Marks and Spencer plc, British Broadcasting Corporation, Rightmove plc, Capita plc, Accenture (UK) Limited, Capgemini UK plc, Deloitte LLP, PricewaterhouseCoopers LLP, Ernst & Young LLP, KPMG LLP, Infosys Limited, Tata Consultancy Services Limited, Wipro Limited, Cognizant Worldwide Limited`
+
+The user must check each name against the latest register CSV and can add more. Put the same note as a comment above the list in `config/sponsor-finder.php`.
+
+Matching follows spec 05: the full register name must equal an entry, ignoring only letter case and extra spaces. Suffixes such as "Limited" or "plc" are not removed, so each entry must be the exact register name.
 
 ## Priority Locations
 
@@ -64,4 +74,5 @@ Towns not in the map get region null and priority 0.
 
 - `composer ci:check` passes.
 - `config('sponsor-finder.batch_size')` returns 100.
-- A small test asserts the config defaults (batch size, rate, routes, SIC codes, tech and noise keywords, empty known employers, Sheffield priority 100).
+- A small test asserts the config defaults (batch size, rate, routes, SIC codes, tech and noise keywords, Sheffield priority 100).
+- The config test asserts `known_employers` is not empty and contains "Sky UK Limited".

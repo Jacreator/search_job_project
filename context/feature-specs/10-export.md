@@ -22,7 +22,7 @@ These are not part of this spec. Each later spec extends the export when it is b
 
 - Spec 13: "Needs second check" column.
 - Spec 14: "AI" column (Yes / No).
-- Spec 15: "Careers URL", "Developer roles", and "Visa sponsorship" columns, and `--developer-roles` and `--visa-sponsorship` filters.
+- Spec 15: "Careers URL", "Developer roles", and "Visa sponsorship" (Offered / Not offered / blank) columns, and `--developer-roles` and `--visa-sponsorship=offered|not_offered` filters.
 
 ## Check When Done
 

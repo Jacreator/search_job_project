@@ -24,13 +24,13 @@ Let teams reuse each other's finished lookups to save API calls. Opt-in per team
 `App\Services\SharedLookup::find(Sponsor $sponsor): ?Sponsor`
 
 - Returns null when the sponsor's team has sharing off.
-- Otherwise finds a sponsor in another team with sharing on, the same normalised name (`CompanyName::normalise`) and the same town (case-insensitive), and status `done` or `skipped`. Prefer `confirmed`, then the highest confidence, then the most recently updated.
+- Otherwise finds a sponsor in another team with sharing on, the same normalised name (`CompanyName::normalise`) and the same town (case-insensitive), and status `done` or `skipped`. Never use a source row whose `skip_reason` is `BRating`. Prefer `confirmed`, then the highest confidence, then the most recently updated.
 
 In `EnrichSponsor`, before any API call:
 
-- Match found: copy `company_number`, `company_status`, `sic_codes`, `is_tech`, `tech_reason`, `rating_grade`, `skip_reason`, `region`, `priority`, `website`, `confidence`, and `status`. Do not copy `confirmed` (each team confirms for itself). No API calls are made.
+- Match found: copy `company_number`, `company_status`, `sic_codes`, `is_tech`, `tech_reason`, `skip_reason`, `website`, `confidence`, and `status`. Do not copy `confirmed` (each team confirms for itself). Do not copy `region`, `priority`, `rating_grade`, or `rating_grade_manual`: each team gets these from its own import. No API calls are made.
 - Once spec 14 is built, also copy `is_ai` and `ai_source`.
-- Once spec 15 is built, also copy `careers_url`, `mentions_developer_roles`, `mentions_visa_sponsorship`, and `careers_checked_at`.
+- Once spec 15 is built, also copy `careers_url`, `mentions_developer_roles`, `visa_sponsorship`, and `careers_checked_at`.
 - If the source row is `confirmed` (a hand-checked website): cap the copied confidence at 74 and set `needs_second_check` to true. 74 is just under the 75 "trusted" threshold, so the row shows amber and lands in review.
 - Copies from unconfirmed source rows keep their confidence and do not set the flag (the score was calculated the same way the team's own pipeline would).
 - No match: run the normal pipeline.
@@ -47,6 +47,7 @@ In `EnrichSponsor`, before any API call:
 - The lookup is a plain database query. No HTTP. Keep it out of commands (invariant 1).
 - Copying keeps the job safe to run twice (invariant 2).
 - Never copy from a `pending`, `ch_done`, or `failed` row.
+- Never copy from a row skipped with `BRating`. Rating is handled by each team's own import.
 
 ## Check When Done
 
@@ -54,9 +55,11 @@ In `EnrichSponsor`, before any API call:
 - Both teams on: the job copies the result and `Http::fake()` records no requests.
 - Either team off: the job runs the normal pipeline.
 - `confirmed` is never copied.
-- `tech_reason`, `rating_grade`, `skip_reason`, `region`, and `priority` are copied.
+- `tech_reason` and `skip_reason` are copied.
+- `region`, `priority`, `rating_grade`, and `rating_grade_manual` are never copied. The target keeps its own values.
+- A source row skipped with `BRating` is never used.
 - After spec 14: `is_ai` and `ai_source` are copied (spec 14 adds this test).
-- After spec 15: `careers_url`, `mentions_developer_roles`, `mentions_visa_sponsorship`, and `careers_checked_at` are copied (spec 15 adds this test).
+- After spec 15: `careers_url`, `mentions_developer_roles`, `visa_sponsorship`, and `careers_checked_at` are copied (spec 15 adds this test).
 - Copy from a confirmed source: confidence is 74 and `needs_second_check` is true.
 - Copy from an unconfirmed source: confidence unchanged and `needs_second_check` is false.
 - Confirming or editing the website in the dashboard clears the flag.

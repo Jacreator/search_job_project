@@ -2,7 +2,7 @@
 
 ## Overview
 
-A Laravel app that takes the UK Home Office register of licensed sponsors and finds the employers where James can get a Software Engineer or AI Engineer job on a Skilled Worker visa. It finds which sponsors are tech employers, finds each one's official website and careers page, and checks whether they hire developers and mention visa sponsorship. Sheffield and Yorkshire come first.
+A Laravel app that takes the UK Home Office register of licensed sponsors and finds the employers where James can get a Software Engineer or AI Engineer job on a Skilled Worker visa. It finds which sponsors are tech employers, finds each one's official website and careers page, and checks whether they hire developers and whether they offer or refuse visa sponsorship. Sheffield and Yorkshire come first.
 
 The app is built on the Laravel React starter kit. Users log in, belong to teams, and each team works on its own copy of the sponsor register.
 
@@ -16,7 +16,7 @@ The app is built on the Laravel React starter kit. Users log in, belong to teams
 6. Tag AI companies from their name or homepage.
 7. Find the official website for each tech sponsor.
 8. Give each website a confidence score so only doubtful rows need a human check.
-9. Find each tech sponsor's careers page and check it for developer roles and visa sponsorship.
+9. Find each tech sponsor's careers page and check it for developer roles and whether it offers or refuses visa sponsorship.
 10. Export the results to CSV.
 11. Let team members review and fix low-confidence rows in a dashboard.
 
@@ -70,7 +70,7 @@ The app is built on the Laravel React starter kit. Users log in, belong to teams
 ### Careers Page And Hiring Signals
 
 - Find the careers page from homepage links, known job board hosts, or common paths.
-- Record whether the page mentions developer roles and visa sponsorship.
+- Record whether the page mentions developer roles, and whether it offers or refuses visa sponsorship (refusal wording wins).
 - Runs as its own job and rate limit, highest priority first. No paid APIs.
 
 ### Background Processing

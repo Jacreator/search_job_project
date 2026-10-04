@@ -14,7 +14,7 @@ Checks run in this order and stop at the first hit:
 
 1. Any SIC code is in `config('sponsor-finder.tech_sic_codes')`: `Sic`.
 2. The normalised name (`CompanyName::normalise`) contains a whole word from `config('sponsor-finder.tech_keywords')` and no whole word from `config('sponsor-finder.noise_keywords')`: `Keyword`.
-3. The normalised name equals a normalised entry in `config('sponsor-finder.known_employers')`: `KnownEmployer`.
+3. The full register name equals an entry in `config('sponsor-finder.known_employers')`, comparing case-insensitively after trimming and collapsing spaces. `CompanyName::normalise` is not used here, so suffixes like "Limited" and "UK" must match too: `KnownEmployer`.
 4. Otherwise null.
 
 ## Rules
@@ -31,6 +31,9 @@ Checks run in this order and stop at the first hit:
   - no tech code but a tech keyword in the name gives `Keyword`
   - a tech keyword plus a noise keyword gives null (for example "Digital Care Ltd")
   - a known employer gives `KnownEmployer`
+  - "SKY UK LIMITED" and "Sky  UK Limited" (extra space) give `KnownEmployer`
+  - "Sky Limited" and "Sky UK Ltd" give null (the full register name must match)
+  - "Acme Property Developer Ltd" gives null (tech keyword plus the noise keyword "property")
   - no codes, no keyword, not known gives null
   - empty codes and an empty name give null
   - whole-word matching (for example "Maintenance Services" is not `Keyword`)

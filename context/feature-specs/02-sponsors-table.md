@@ -10,6 +10,7 @@ The project is set up. Add the data model only.
 - `team_id` (foreign key to `teams`, cascade on delete)
 - `name`, `town` (nullable), `county` (nullable), `route`, `rating`
 - `rating_grade` (string, 1 char, nullable: `A` or `B`)
+- `rating_grade_manual` (boolean, default false): true when an owner or admin set the grade by hand (spec 12)
 - `region` (string, nullable), `priority` (unsigned small int, default 0, indexed)
 - `company_number` (nullable), `company_status` (nullable)
 - `sic_codes` (json, nullable), `is_tech` (boolean, nullable), `tech_reason` (string, nullable)
@@ -29,7 +30,7 @@ The project is set up. Add the data model only.
 
 ## Model
 
-`App\Models\Sponsor` with casts for `sic_codes` (array), `is_tech` (bool), `tech_reason` (`TechReason`), `confirmed` (bool), `status` (`SponsorStatus`), `skip_reason` (`SkipReason`), `priority` (int).
+`App\Models\Sponsor` with casts for `sic_codes` (array), `is_tech` (bool), `rating_grade_manual` (bool), `tech_reason` (`TechReason`), `confirmed` (bool), `status` (`SponsorStatus`), `skip_reason` (`SkipReason`), `priority` (int).
 
 `is_tech` is true when `tech_reason` is not null, and false when the sponsor was classified with no reason. It stays null until classification runs.
 
