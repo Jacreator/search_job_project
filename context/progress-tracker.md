@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 01 (project setup) built. Waiting on two `composer ci:check` blockers that came before this spec (see In Progress).
+- Feature 01 complete. Feature 02 not started.
 
 ## Current Goal
 
-- Feature 01: Project setup (sponsor finder config and storage folders on top of the starter kit)
+- Feature 02: Sponsors table
 
 ## Completed
 
@@ -52,20 +52,22 @@ Update this file whenever the current phase, active feature, or implementation s
 
 - Git rule (2026-10-04): the agent never commits or pushes. Added `.claude/settings.json` with deny rules for git write commands. Updated `AGENTS.md`, `ai-workflow-rules.md`, and `github-workflow-context.md`.
 
-## In Progress
-
-- Feature 01: Project setup (2026-10-04). Built:
+- Feature 01: Project setup (2026-10-04):
     - `config/sponsor-finder.php`: API keys, `batch_size` (100), `rate_per_minute` (30), `routes`, `tech_sic_codes` (strings), `tech_keywords`, `noise_keywords`, `known_employers` (30, with the check-the-register note), `priority_locations`.
     - Empty env values fall back to the defaults (`env(...) ?: default`), because `.env.example` lists the keys with no value. `SPONSOR_ROUTES` is a comma-separated list, and empty means the three default routes.
     - `.env.example`: `APP_NAME="Sponsor Finder"` and empty `COMPANIES_HOUSE_KEY`, `BRAVE_SEARCH_KEY`, `SPONSOR_BATCH_SIZE`, `SPONSOR_RATE_PER_MINUTE`.
     - `phpunit.xml` pins all five sponsor env keys to empty, so tests see the defaults and never the real keys.
     - `storage/app/imports` and `storage/app/exports`, each with a `.gitignore` that ignores everything but itself. `storage/app/.gitignore` now un-ignores both folders.
-    - `tests/Unit/Config/SponsorFinderConfigTest.php` (6 tests). Pint, Larastan (with `--memory-limit=1G`), `tsc`, and Pest (97 tests) pass.
-    - Blockers for `composer ci:check`, both from before this spec: (1) `vp check` reports formatting issues in 10 committed `context/*.md` files; (2) Larastan crashes at the local PHP 128M memory limit.
+    - `tests/Unit/Config/SponsorFinderConfigTest.php` (6 tests). `composer ci:check` passes (97 tests).
+    - `context/*.md` reformatted with `npm run check:fix` (table padding only), so `vp check` passes.
+
+## In Progress
+
+- None.
 
 ## Next Up
 
-- Clear the two `ci:check` blockers, then Feature 02: Sponsors table.
+- Feature 02: Sponsors table.
 
 ## Open Questions
 
@@ -73,8 +75,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Should priority locations become a per-team setting later?
 - Where will the app be hosted, if anywhere beyond local Herd?
 - Default route names use the register's colon form (`Global Business Mobility: Senior or Specialist Worker`, `Global Business Mobility: Graduate Trainee`). Check them against the latest register CSV before spec 03.
-- `vp check` formats `context/*.md`: reformat the docs with `vp check --fix`, or exclude `context/` from the formatter?
-- Larastan needs more than 128M: set `memory_limit` in local php.ini, or add `--memory-limit` to the `types:check` script?
+- Larastan sometimes crashes at the local PHP 128M memory limit (it passed on the last run). If it keeps happening: raise `memory_limit` in local php.ini, or add `--memory-limit` to the `types:check` script?
 
 ## Architecture Decisions
 
