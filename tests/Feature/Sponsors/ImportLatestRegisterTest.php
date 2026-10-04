@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 use App\Models\Sponsor;
 use App\Models\Team;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Sleep;
+use Illuminate\Testing\PendingCommand;
 
 const CONTENT_URL = 'https://www.gov.uk/api/content/government/publications/register-of-licensed-sponsors-workers';
 const CSV_URL = 'https://assets.publishing.service.gov.uk/media/bbbb/SP_-_Worker_and_Temporary_Worker_Web_Register_-_1999-01-01.csv';
 
-function downloadedRegister(): string
+function imports(string $file = ''): string
 {
-    return storage_path('app/imports/register-1999-01-01.csv');
+    return storage_path('app/imports'.($file === '' ? '' : '/'.$file));
 }
 
 /**
@@ -28,15 +31,31 @@ function registerBody(): string
     return (string) file_get_contents(base_path('tests/Fixtures/register/workers.csv'));
 }
 
+/**
+ * Save a register in the imports folder, as if downloaded earlier.
+ */
+function saveRegister(string $file, ?string $body = null): void
+{
+    file_put_contents(imports($file), $body ?? registerBody());
+}
+
+function importLatest(Team $team): PendingCommand
+{
+    return test()->artisan('sponsors:import', ['--team' => $team->slug]);
+}
+
 beforeEach(function () {
     Http::preventStrayRequests();
     Sleep::fake();
-    @unlink(downloadedRegister());
+
+    // Use an empty storage folder, so registers saved locally never affect these tests.
+    $this->storage = sys_get_temp_dir().'/sponsor-finder-'.uniqid();
+    File::ensureDirectoryExists($this->storage.'/app/imports');
+    $this->app->useStoragePath($this->storage);
 });
 
 afterEach(function () {
-    @unlink(downloadedRegister());
-    @unlink(downloadedRegister().'.part');
+    File::deleteDirectory($this->storage);
 });
 
 it('downloads the latest register and imports it when no file is given', function () {
@@ -46,22 +65,22 @@ it('downloads the latest register and imports it when no file is given', functio
     ]);
     $team = Team::factory()->create();
 
-    $this->artisan('sponsors:import', ['--team' => $team->slug])
+    importLatest($team)
         ->expectsOutputToContain('Downloaded register-1999-01-01.csv')
         ->assertSuccessful();
 
-    expect(downloadedRegister())->toBeFile()
-        ->and(file_get_contents(downloadedRegister()))->toBe(registerBody())
+    expect(imports('register-1999-01-01.csv'))->toBeFile()
+        ->and(file_get_contents(imports('register-1999-01-01.csv')))->toBe(registerBody())
         ->and($team->sponsors()->count())->toBe(6);
     Http::assertSentCount(2);
 });
 
 it('reuses a register that was already downloaded', function () {
-    copy(base_path('tests/Fixtures/register/workers.csv'), downloadedRegister());
+    saveRegister('register-1999-01-01.csv');
     Http::fake([CONTENT_URL => Http::response(registerContent())]);
     $team = Team::factory()->create();
 
-    $this->artisan('sponsors:import', ['--team' => $team->slug])
+    importLatest($team)
         ->expectsOutputToContain('Already downloaded, using register-1999-01-01.csv')
         ->assertSuccessful();
 
@@ -69,76 +88,107 @@ it('reuses a register that was already downloaded', function () {
     Http::assertNotSent(fn ($request) => $request->url() === CSV_URL);
 });
 
-it('fails when the publication has no register CSV', function () {
-    $content = registerContent();
-    $content['details']['attachments'] = [$content['details']['attachments'][0]];
-    Http::fake([CONTENT_URL => Http::response($content)]);
+it('falls back to the newest saved register when the download fails', function (Closure $fake, string $reason) {
+    $fake();
+    Log::spy();
+    saveRegister('register-1998-06-01.csv', "Organisation Name,Town/City,County,Type & Rating,Route\nOld Ltd,Leeds,,Worker (A rating),Skilled Worker\n");
+    saveRegister('register-1998-12-01.csv');
     $team = Team::factory()->create();
 
-    $this->artisan('sponsors:import', ['--team' => $team->slug])
-        ->expectsOutputToContain('no register CSV was found')
-        ->assertFailed();
+    importLatest($team)
+        ->expectsOutputToContain($reason)
+        ->expectsOutputToContain('Importing the newest saved register instead: register-1998-12-01.csv')
+        ->assertSuccessful();
 
-    expect(Sponsor::query()->count())->toBe(0);
-});
+    expect($team->sponsors()->count())->toBe(6)
+        ->and($team->sponsors()->where('name', 'Old Ltd')->exists())->toBeFalse()
+        ->and(imports('register-1999-01-01.csv'))->not->toBeFile()
+        ->and(imports('register-1999-01-01.csv.part'))->not->toBeFile();
 
-it('ignores a CSV link that is not on the GOV.UK assets host', function () {
+    Log::shouldHaveReceived('warning')->once()->withArgs(
+        fn (string $message, array $context) => str_contains($message, 'imported a saved register instead')
+            && $context['file'] === 'register-1998-12-01.csv'
+            && str_contains($context['reason'], $reason),
+    );
+})->with([
+    'publication page cannot be loaded' => [
+        fn () => Http::fake([CONTENT_URL => Http::response('Server error', 500)]),
+        'the publication page could not be loaded',
+    ],
+    'publication has no register CSV' => [
+        function () {
+            $content = registerContent();
+            $content['details']['attachments'] = [$content['details']['attachments'][0]];
+            Http::fake([CONTENT_URL => Http::response($content)]);
+        },
+        'no register CSV was found',
+    ],
+    'CSV link is not on the GOV.UK assets host' => [
+        function () {
+            $content = registerContent();
+            $content['details']['attachments'][1]['url'] = 'https://example.com/register-1999-01-01.csv';
+            Http::fake([CONTENT_URL => Http::response($content)]);
+        },
+        'no register CSV was found',
+    ],
+    'CSV download fails' => [
+        fn () => Http::fake([
+            CONTENT_URL => Http::response(registerContent()),
+            CSV_URL => Http::response('Server error', 500),
+        ]),
+        'the register CSV could not be downloaded',
+    ],
+    'CSV is empty' => [
+        fn () => Http::fake([
+            CONTENT_URL => Http::response(registerContent()),
+            CSV_URL => Http::response(''),
+        ]),
+        'the register CSV was empty or too large',
+    ],
+]);
+
+it('never downloads from a host other than GOV.UK assets', function () {
     $content = registerContent();
     $content['details']['attachments'][1]['url'] = 'https://example.com/register-1999-01-01.csv';
     Http::fake([CONTENT_URL => Http::response($content)]);
-    $team = Team::factory()->create();
+    saveRegister('register-1998-12-01.csv');
 
-    $this->artisan('sponsors:import', ['--team' => $team->slug])
-        ->expectsOutputToContain('no register CSV was found')
-        ->assertFailed();
+    importLatest(Team::factory()->create())->assertSuccessful();
 
     Http::assertSentCount(1);
 });
 
-it('fails when the publication page cannot be loaded', function () {
+it('ignores saved files whose name has no register date', function () {
     Http::fake([CONTENT_URL => Http::response('Server error', 500)]);
+    saveRegister('register-1998-12-01.csv');
+    saveRegister('register-latest.csv', "Organisation Name,Town/City,County,Type & Rating,Route\nOther Ltd,Leeds,,Worker (A rating),Skilled Worker\n");
+    saveRegister('register-1999-01-01.csv.part', 'partial');
     $team = Team::factory()->create();
 
-    $this->artisan('sponsors:import', ['--team' => $team->slug])
+    importLatest($team)
+        ->expectsOutputToContain('Importing the newest saved register instead: register-1998-12-01.csv')
+        ->assertSuccessful();
+
+    expect($team->sponsors()->count())->toBe(6);
+});
+
+it('fails when the download fails and no register is saved', function () {
+    Http::fake([CONTENT_URL => Http::response('Server error', 500)]);
+    Log::spy();
+    $team = Team::factory()->create();
+
+    importLatest($team)
         ->expectsOutputToContain('the publication page could not be loaded')
+        ->expectsOutputToContain('No saved register-*.csv was found in storage/app/imports either.')
         ->assertFailed();
 
     expect(Sponsor::query()->count())->toBe(0);
-});
-
-it('fails and leaves no file behind when the CSV download fails', function () {
-    Http::fake([
-        CONTENT_URL => Http::response(registerContent()),
-        CSV_URL => Http::response('Server error', 500),
-    ]);
-    $team = Team::factory()->create();
-
-    $this->artisan('sponsors:import', ['--team' => $team->slug])
-        ->expectsOutputToContain('the register CSV could not be downloaded')
-        ->assertFailed();
-
-    expect(downloadedRegister())->not->toBeFile()
-        ->and(downloadedRegister().'.part')->not->toBeFile()
-        ->and(Sponsor::query()->count())->toBe(0);
-});
-
-it('fails and leaves no file behind when the CSV is empty', function () {
-    Http::fake([
-        CONTENT_URL => Http::response(registerContent()),
-        CSV_URL => Http::response(''),
-    ]);
-    $team = Team::factory()->create();
-
-    $this->artisan('sponsors:import', ['--team' => $team->slug])
-        ->expectsOutputToContain('the register CSV was empty or too large')
-        ->assertFailed();
-
-    expect(downloadedRegister())->not->toBeFile()
-        ->and(downloadedRegister().'.part')->not->toBeFile();
+    Log::shouldNotHaveReceived('warning');
 });
 
 it('does not download when a named file is missing', function () {
     Http::fake();
+    saveRegister('register-1998-12-01.csv');
     $team = Team::factory()->create();
 
     $this->artisan('sponsors:import', ['file' => 'missing-register.csv', '--team' => $team->slug])
@@ -146,6 +196,7 @@ it('does not download when a named file is missing', function () {
         ->assertFailed();
 
     Http::assertNothingSent();
+    expect(Sponsor::query()->count())->toBe(0);
 });
 
 it('checks the team before downloading', function () {

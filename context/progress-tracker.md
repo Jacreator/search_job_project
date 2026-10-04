@@ -100,6 +100,12 @@ Update this file whenever the current phase, active feature, or implementation s
     - Spec 10 gains a Scale-up column and `--scale-up` filter; spec 12 and `ui-context.md` gain a Scale-up badge and "Scale-up only" filter, built when those specs come up.
     - Local data: 92 Scale-up sponsors in `johns-llc`, all A-rated and pending, 1 in Yorkshire.
 
+- Register download fallback (2026-10-05):
+    - When `RegisterDownload` fails for any reason, `sponsors:import` (no file) imports the newest saved `register-YYYY-MM-DD.csv` in `storage/app/imports` (`RegisterDownload::newestSaved()`, by the date in the name). It prints the failure and a warning naming the file, and logs a warning (`reason`, `file`). It fails only when no saved register exists.
+    - `ImportLatestRegisterTest`: the five "fails when..." download tests replaced by one fallback test per failure (page error, no CSV, off-host link, CSV error, empty CSV), plus tests for the newest-file choice ignoring undated names and `.part` files, and for failing with no saved register. The tests now use a temporary storage folder, so the real register in `storage/app/imports` never affects them (12 tests).
+    - Live check: with a broken content URL, the command warned, imported `register-2026-10-02.csv` (0 new, 122,938 existing), and logged the warning.
+    - Spec 03 updated.
+
 ## In Progress
 
 - None.
@@ -142,6 +148,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Larastan runs with `--memory-limit=512M` (`types:check` in `composer.json`), because it crashed at the local 128M PHP limit.
 - `sponsors:import` with no file downloads the latest register from GOV.UK. This is the one exception to "commands never call external APIs". A named file that is missing still fails.
 - Scale-up sponsors are found from `route` with `Sponsor::scaleUp()`, not a separate column.
+- A failed register download falls back to the newest saved `register-YYYY-MM-DD.csv`, with a printed and logged warning. The import fails only when no register is saved.
 - One sponsor per team + name + town. Register rows for the same name and town are merged: routes joined with `, ` (each once), first non-empty county, B beats A. Name and town match ignoring case and accents, like the MySQL collation.
 - Rating grades: "A rating", "A (Premium)" and "A (SME+)" give A. "B rating" gives B. Anything else, including "UK Expansion Worker: Provisional", gives null.
 

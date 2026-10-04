@@ -8,7 +8,7 @@ The model exists. Add the import command only.
 
 - `--team` is the team slug and is required.
 - `{file}` is a path, or a file name in `storage/app/imports`. A named file that does not exist fails; it never triggers a download.
-- `{file}` is optional. When it is left out, `App\Services\RegisterDownload` reads the GOV.UK content API (`register_content_url` in config), takes the first `text/csv` attachment on `assets.publishing.service.gov.uk`, and saves it as `storage/app/imports/register-YYYY-MM-DD.csv` (date from the GOV.UK file name). A register already saved under that name is reused. The download streams to a `.part` file and is moved into place only when complete, non-empty, and at most 50 MB. Any failure ends the command with a clear message and imports nothing.
+- `{file}` is optional. When it is left out, `App\Services\RegisterDownload` reads the GOV.UK content API (`register_content_url` in config), takes the first `text/csv` attachment on `assets.publishing.service.gov.uk`, and saves it as `storage/app/imports/register-YYYY-MM-DD.csv` (date from the GOV.UK file name). A register already saved under that name is reused. The download streams to a `.part` file and is moved into place only when complete, non-empty, and at most 50 MB. If the download fails for any reason, the command falls back to the newest register already saved in `storage/app/imports` (by the date in a `register-YYYY-MM-DD.csv` name; other names and `.part` files are ignored). It prints the failure and a warning naming the file it imports, and logs a warning with the reason and file name. It fails, importing nothing, only when no saved register exists.
 - The team is checked before anything is downloaded.
 - The command stays thin. Reading and upserting live in `App\Services\RegisterImport`, which returns an `ImportSummary`.
 
@@ -78,7 +78,7 @@ When `skip_b_rated` is false, only `rating_grade` is updated.
 - Importing the same file into a second team creates separate rows.
 - Rows with other routes are ignored.
 - Re-importing a row with no town creates no duplicate (the town is stored as `''`).
-- With no file: downloads and imports the latest register; reuses an already downloaded one; fails clearly (and leaves no file) when the page fails, has no CSV, links off the assets host, or the CSV download fails or is empty. A missing named file never downloads. All HTTP is faked.
+- With no file: downloads and imports the latest register; reuses an already downloaded one. When the page fails, has no CSV, links off the assets host, or the CSV download fails or is empty, it imports the newest saved register, warns and logs which file, and leaves no partial file. Undated names and `.part` files are never used. It fails only when no register is saved. A missing named file never downloads. All HTTP is faked, and the tests use a temporary storage folder.
 - Rows with the same name and town become one sponsor with joined routes, including across chunks and case variants. A repeated route is listed once. B beats A.
 - `SponsorRating::grade()` unit tests, one per case: "A rating", "A (Premium)" and "A (SME+)" give `A`; "B rating" gives `B`; "UK Expansion Worker: Provisional" gives null; any other value gives null.
 - B-rated rows are skipped with reason `BRating` when `skip_b_rated` is true, and imported as `pending` when it is false.

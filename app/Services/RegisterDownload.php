@@ -44,6 +44,26 @@ final class RegisterDownload
     }
 
     /**
+     * The newest register saved in the directory, by the date in its name
+     * (register-YYYY-MM-DD.csv), or null when there is none.
+     */
+    public function newestSaved(string $directory): ?string
+    {
+        $paths = array_filter(
+            glob(rtrim($directory, '/').'/register-*.csv') ?: [],
+            fn (string $path): bool => preg_match('/^register-\d{4}-\d{2}-\d{2}\.csv$/', basename($path)) === 1,
+        );
+
+        if ($paths === []) {
+            return null;
+        }
+
+        rsort($paths);
+
+        return $paths[0];
+    }
+
+    /**
      * Find the register CSV in the GOV.UK content API response for the publication.
      *
      * @return array{url: string, filename: string}
