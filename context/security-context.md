@@ -24,6 +24,8 @@
 
 ## Outbound Requests
 
+- The register download (spec 03) only fetches the GOV.UK content API URL from config and a CSV on `https://assets.publishing.service.gov.uk`. It uses timeouts and retries, streams to disk, caps the file at 50 MB, and never leaves a partial file.
+
 - The website verifier (spec 07) and the careers job (spec 15) fetch URLs that came from search results or from the sponsor's own pages. Only fetch `http` / `https` URLs, use a 10 second timeout, cap the response size (page text is capped at 200 KB), and do not follow redirects to private or local IP ranges.
 
 ## Secrets

@@ -51,6 +51,25 @@ return [
         'Scale-up',
     ],
 
+    // GOV.UK content API for the "Register of licensed sponsors: workers"
+    // publication. sponsors:import downloads the latest CSV from it when no
+    // file is given.
+    'register_content_url' => 'https://www.gov.uk/api/content/government/publications/register-of-licensed-sponsors-workers',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rating
+    |--------------------------------------------------------------------------
+    |
+    | B-rated sponsors are skipped at import, because as far as we know they
+    | cannot issue new certificates of sponsorship. Empty means the default.
+    |
+    */
+
+    'skip_b_rated' => in_array(env('SPONSOR_SKIP_B_RATED'), [null, ''], true)
+        ? true
+        : filter_var(env('SPONSOR_SKIP_B_RATED'), FILTER_VALIDATE_BOOL),
+
     /*
     |--------------------------------------------------------------------------
     | Employer Classification

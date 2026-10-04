@@ -24,7 +24,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $county
  * @property string $route
  * @property string $rating
- * @property string|null $rating_grade
+ * @property 'A'|'B'|null $rating_grade
  * @property bool $rating_grade_manual
  * @property string|null $region
  * @property int $priority
