@@ -1,0 +1,13 @@
+{
+    "company_name": "ACME SOFTWARE LIMITED",
+    "company_number": "01234567",
+    "company_status": "active",
+    "type": "ltd",
+    "date_of_creation": "2010-04-01",
+    "sic_codes": ["62012", "62020"],
+    "registered_office_address": {
+        "address_line_1": "1 Example Street",
+        "locality": "Sheffield",
+        "postal_code": "S1 1AA"
+    }
+}

@@ -10,12 +10,25 @@ return [
     |--------------------------------------------------------------------------
     |
     | Shared by every team. Never log these or send them to the frontend.
+    | Trimmed, so a stray space or tab in .env does not break the key.
     |
     */
 
-    'companies_house_key' => env('COMPANIES_HOUSE_KEY'),
+    'companies_house_key' => trim((string) env('COMPANIES_HOUSE_KEY')) ?: null,
 
-    'brave_key' => env('BRAVE_SEARCH_KEY'),
+    'brave_key' => trim((string) env('BRAVE_SEARCH_KEY')) ?: null,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Companies House
+    |--------------------------------------------------------------------------
+    |
+    | REST API base URL. Empty means the live API.
+    |
+    */
+
+    'companies_house_url' => rtrim(trim((string) env('COMPANIES_HOUSE_URL')), '/')
+        ?: 'https://api.company-information.service.gov.uk',
 
     /*
     |--------------------------------------------------------------------------

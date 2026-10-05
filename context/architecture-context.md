@@ -107,6 +107,7 @@ The careers check runs after a row is `done`. It does not change `status`. Its p
 All tunable values live in `config/sponsor-finder.php`. Values that change per environment are read from `.env`:
 
 - `COMPANIES_HOUSE_KEY`
+- `COMPANIES_HOUSE_URL` (default the live API)
 - `BRAVE_SEARCH_KEY`
 - `SPONSOR_BATCH_SIZE` (default 100)
 - `SPONSOR_RATE_PER_MINUTE` (default 30)
