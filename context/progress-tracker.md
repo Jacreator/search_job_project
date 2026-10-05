@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 03 complete. Feature 04 not started.
+- Feature 04 complete. Feature 05 not started.
 
 ## Current Goal
 
-- Feature 04: Companies House client
+- Feature 05: Employer classification
 
 ## Completed
 
@@ -106,13 +106,23 @@ Update this file whenever the current phase, active feature, or implementation s
     - Live check: with a broken content URL, the command warned, imported `register-2026-10-02.csv` (0 new, 122,938 existing), and logged the warning.
     - Spec 03 updated.
 
+- Feature 04: Companies House client (2026-10-05):
+    - `App\Services\CompaniesHouse`: `findCompany(string): ?CompanyMatch` (search, 5 results, first whose normalised title equals the normalised name) and `profile(string): CompanyProfile` (number, nullable status, SIC codes). Basic auth with the key as username. Not wired into a job yet.
+    - `App\Support\CompanyName::normalise()`: lowercase, cut at "t/a" / "trading as", apostrophes removed, other punctuation to spaces, whole-word removal of limited, ltd, plc, llp, uk, the, group, holdings, spaces collapsed.
+    - Value objects `App\Services\CompanyMatch`, `App\Services\CompanyProfile`. Errors throw `App\Exceptions\CompaniesHouseRequestFailed` (missing key, HTTP status, connection, invalid response), with messages free of the key. Two attempts per call; only connection errors, 429, and 5xx are retried.
+    - Tests: `tests/Unit/Support/CompanyNameTest.php` (20 cases, including t/a and trading as), `tests/Unit/Services/CompaniesHouseTest.php` (match, no match, empty results, bad items, retries, 401, 404, connection, missing key, profile parsing, URL escaping). Fixtures in `tests/Fixtures/companies-house/`. `composer ci:check` passes.
+    - Real names: of 122,938 imported sponsors, 8,775 have a trading name and 2 normalise to nothing (both start with "T/A"), so those 2 will get no match.
+    - Live check (2026-10-05, real key): 10 Sheffield sponsors gave 6 matches with status and SIC codes (IDAQ LIMITED has 62030) and 4 no-matches: 3 sole traders not on Companies House, and 1 "t/as" name.
+    - Fixes from the live check: `CompanyName` also cuts at "t/as" and "t/a's" (403 register names), and both now match live. "t.a" is not handled (8 names), because it would break names like "I.T.A Tax Accounting". `config/sponsor-finder.php` trims both API keys (the local `.env` had a tab before the key), and `CompaniesHouse` throws `CompaniesHouseRequestFailed::invalidKey()` for a key with control characters instead of letting Guzzle's error escape. Tests added for both.
+    - Base URL moved to config (`companies_house_url`, `COMPANIES_HOUSE_URL`, default the live API), added to `.env` and `.env.example`, pinned empty in `phpunit.xml`. Tests for the default, env override, and the client using it.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 04: Companies House client.
+- Feature 05: Employer classification.
 
 ## Open Questions
 
@@ -134,6 +144,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Every skipped row has a `skip_reason`.
 - The careers page finder is core scope (spec 15). It runs after `done`, has its own `careers-pages` limiter, and never calls paid APIs.
 - No confident Companies House match means the row is skipped, not guessed.
+- A Companies House API error throws `CompaniesHouseRequestFailed` (retried by the job), never returns null, so errors are not mistaken for no-matches.
 - Database queue, not Redis, to keep setup simple.
 - Keep the Laravel React starter kit as the foundation. The dashboard is a React/Inertia page behind login.
 - Sponsor data is scoped per team (`team_id` on `sponsors`). API keys and the rate limiters are shared.

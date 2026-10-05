@@ -20,6 +20,47 @@ it('imports the four worker routes by default', function () {
     ]);
 });
 
+it('trims whitespace from the API keys', function () {
+    $keys = ['COMPANIES_HOUSE_KEY' => "\tch-key \r", 'BRAVE_SEARCH_KEY' => '  brave-key'];
+    $saved = [$_SERVER, $_ENV];
+
+    try {
+        foreach ($keys as $name => $value) {
+            $_SERVER[$name] = $_ENV[$name] = $value;
+        }
+
+        $config = require config_path('sponsor-finder.php');
+    } finally {
+        [$_SERVER, $_ENV] = $saved;
+    }
+
+    expect($config['companies_house_key'])->toBe('ch-key')
+        ->and($config['brave_key'])->toBe('brave-key');
+});
+
+it('uses the live Companies House API by default', function () {
+    expect(config('sponsor-finder.companies_house_url'))->toBe('https://api.company-information.service.gov.uk');
+});
+
+it('reads the Companies House URL from the environment without a trailing slash', function () {
+    $saved = [$_SERVER, $_ENV];
+
+    try {
+        $_SERVER['COMPANIES_HOUSE_URL'] = $_ENV['COMPANIES_HOUSE_URL'] = ' https://ch.example.test/ ';
+
+        $config = require config_path('sponsor-finder.php');
+    } finally {
+        [$_SERVER, $_ENV] = $saved;
+    }
+
+    expect($config['companies_house_url'])->toBe('https://ch.example.test');
+});
+
+it('has no API keys when they are empty', function () {
+    expect(config('sponsor-finder.companies_house_key'))->toBeNull()
+        ->and(config('sponsor-finder.brave_key'))->toBeNull();
+});
+
 it('skips B-rated sponsors by default', function () {
     expect(config('sponsor-finder.skip_b_rated'))->toBeTrue();
 });

@@ -34,6 +34,7 @@
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <env name="COMPANIES_HOUSE_KEY" value=""/>
+        <env name="COMPANIES_HOUSE_URL" value=""/>
         <env name="BRAVE_SEARCH_KEY" value=""/>
         <env name="SPONSOR_BATCH_SIZE" value=""/>
         <env name="SPONSOR_RATE_PER_MINUTE" value=""/>

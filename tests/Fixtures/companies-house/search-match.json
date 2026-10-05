@@ -1,0 +1,29 @@
+{
+    "kind": "search#companies",
+    "total_results": 3,
+    "items_per_page": 5,
+    "start_index": 0,
+    "items": [
+        {
+            "kind": "searchresults#company",
+            "title": "ACME SOFTWARE SOLUTIONS LTD",
+            "company_number": "11111111",
+            "company_status": "active",
+            "company_type": "ltd"
+        },
+        {
+            "kind": "searchresults#company",
+            "title": "ACME SOFTWARE LIMITED",
+            "company_number": "01234567",
+            "company_status": "active",
+            "company_type": "ltd"
+        },
+        {
+            "kind": "searchresults#company",
+            "title": "ACME SOFTWARE (UK) LTD",
+            "company_number": "22222222",
+            "company_status": "dissolved",
+            "company_type": "ltd"
+        }
+    ]
+}

@@ -1,0 +1,20 @@
+{
+    "kind": "search#companies",
+    "total_results": 2,
+    "items_per_page": 5,
+    "start_index": 0,
+    "items": [
+        {
+            "kind": "searchresults#company",
+            "title": "ACME SOFTWARE SOLUTIONS LTD",
+            "company_number": "11111111",
+            "company_status": "active"
+        },
+        {
+            "kind": "searchresults#company",
+            "title": "ACME SOFTWARE SERVICES LIMITED",
+            "company_number": "33333333",
+            "company_status": "active"
+        }
+    ]
+}
