@@ -4,62 +4,62 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 04 complete. Feature 05 not started.
+- Feature 05 complete. Feature 06 not started.
 
 ## Current Goal
 
-- Feature 05: Employer classification
+- Feature 06: Web search
 
 ## Completed
 
 - Baseline: Laravel 13 React starter kit installed (Inertia + React + TypeScript, Fortify auth, teams, passkeys, two-factor, Pest, Pint, Larastan level 7). 91 tests pass, Pint passes. Local MySQL database `laravel_search_job` migrated.
 - Context setup (2026-10-04):
-    - Extracted the sponsor finder context pack. `AGENTS.md` and `CLAUDE.md` at the repo root, docs in `context/`, specs in `context/feature-specs/`.
-    - Added `data-model-context.md`, `testing-context.md`, `security-context.md`, `github-workflow-context.md`, `deployment-context.md` (sedatus used as a template only).
-    - Adapted the docs to the starter kit: dashboard is a React page behind login, sponsor data is scoped per team, specs 01, 02, 03, 09, 10, and the dashboard spec updated for `team_id` and `--team`.
-    - `.gitignore`: stopped ignoring `/AGENTS.md` and `/CLAUDE.md`, added `/context/current-issues.md`.
-    - Added spec 11 (sponsor edit permission); review dashboard is now spec 12.
-    - Added spec 13 (shared lookups between teams); careers page was moved to spec 14 (since replaced by spec 15).
+  - Extracted the sponsor finder context pack. `AGENTS.md` and `CLAUDE.md` at the repo root, docs in `context/`, specs in `context/feature-specs/`.
+  - Added `data-model-context.md`, `testing-context.md`, `security-context.md`, `github-workflow-context.md`, `deployment-context.md` (sedatus used as a template only).
+  - Adapted the docs to the starter kit: dashboard is a React page behind login, sponsor data is scoped per team, specs 01, 02, 03, 09, 10, and the dashboard spec updated for `team_id` and `--team`.
+  - `.gitignore`: stopped ignoring `/AGENTS.md` and `/CLAUDE.md`, added `/context/current-issues.md`.
+  - Added spec 11 (sponsor edit permission); review dashboard is now spec 12.
+  - Added spec 13 (shared lookups between teams); careers page was moved to spec 14 (since replaced by spec 15).
 - `APP_URL` set to `http://search_job.test` in `.env` and `.env.example`. `phpunit.xml` pins `APP_URL=http://localhost` so tests do not depend on `.env`. 91 tests still pass.
 - Context change, closing five gaps (2026-10-04). Docs only, no code:
-    - Spec 05 rewritten as Employer Classification (`EmployerClassifier`, `TechReason`). File renamed to `05-employer-classification.md`. The old SIC-only classifier is removed from every doc.
-    - New spec 14 AI Tagging (`AiDetector`, `is_ai`, `ai_source`). Spec 07 verifier now returns page text (`VerifiedPage`, 200 KB cap).
-    - Location priority: `priority_locations` config, `region` and `priority` columns, enrich queue ordered by priority, region filters.
-    - Rating: `rating_grade`, `skip_reason`, `SkipReason` enum, B-rated rows skipped at import by default (`skip_b_rated`).
-    - Old spec 14 (careers page, later) replaced by spec 15 Careers Page and Hiring Signals, now core scope, with its own job, limiter, command, and schedule.
-    - Spec 13 now also copies the new fields. Updated specs 01, 02, 03, 07, 08, 09, 10, 12, 13 and `project-overview`, `architecture`, `data-model`, `ui`, `testing`, `security`, `code-standards`, and `AGENTS.md`.
+  - Spec 05 rewritten as Employer Classification (`EmployerClassifier`, `TechReason`). File renamed to `05-employer-classification.md`. The old SIC-only classifier is removed from every doc.
+  - New spec 14 AI Tagging (`AiDetector`, `is_ai`, `ai_source`). Spec 07 verifier now returns page text (`VerifiedPage`, 200 KB cap).
+  - Location priority: `priority_locations` config, `region` and `priority` columns, enrich queue ordered by priority, region filters.
+  - Rating: `rating_grade`, `skip_reason`, `SkipReason` enum, B-rated rows skipped at import by default (`skip_b_rated`).
+  - Old spec 14 (careers page, later) replaced by spec 15 Careers Page and Hiring Signals, now core scope, with its own job, limiter, command, and schedule.
+  - Spec 13 now also copies the new fields. Updated specs 01, 02, 03, 07, 08, 09, 10, 12, 13 and `project-overview`, `architecture`, `data-model`, `ui`, `testing`, `security`, `code-standards`, and `AGENTS.md`.
 
 - Context change, four fixes (2026-10-04). Docs only, no code:
-    - Spec 01: `known_employers` starter list of 30 employers, with a note to check names against the register. "property" added to noise keywords.
-    - Spec 03: rating changes on re-import (A to B, B to A), with summary counts and tests. Closes the open question.
-    - Spec 05: tests for "SKY UK LIMITED" and "Acme Property Developer Ltd".
-    - Spec 13: stopped copying `region`, `priority`, and `rating_grade`. `BRating` rows are never a source.
-    - Spec 15: visa terms narrowed (no bare "sponsorship"), "node" replaced by "node.js", with tests.
-    - Updated `architecture-context.md`, `data-model-context.md`, and `testing-context.md` to match.
+  - Spec 01: `known_employers` starter list of 30 employers, with a note to check names against the register. "property" added to noise keywords.
+  - Spec 03: rating changes on re-import (A to B, B to A), with summary counts and tests. Closes the open question.
+  - Spec 05: tests for "SKY UK LIMITED" and "Acme Property Developer Ltd".
+  - Spec 13: stopped copying `region`, `priority`, and `rating_grade`. `BRating` rows are never a source.
+  - Spec 15: visa terms narrowed (no bare "sponsorship"), "node" replaced by "node.js", with tests.
+  - Updated `architecture-context.md`, `data-model-context.md`, and `testing-context.md` to match.
 
 - Context change, follow-up answers (2026-10-04). Docs only, no code:
-    - Missing rating grades: owners and admins set them in the dashboard (spec 12, new `rating_grade_manual` column in spec 02). Import never clears a grade, and a register grade replaces a hand-set one. Shared `RatingChange` service (spec 03).
-    - Careers signals use whole-word and whole-phrase matching (spec 15).
-    - Known employers match the full register name, case-insensitive (specs 01 and 05).
-    - Updated `architecture-context.md`, `data-model-context.md`, `security-context.md`, `ui-context.md`, `testing-context.md`, and spec 13.
+  - Missing rating grades: owners and admins set them in the dashboard (spec 12, new `rating_grade_manual` column in spec 02). Import never clears a grade, and a register grade replaces a hand-set one. Shared `RatingChange` service (spec 03).
+  - Careers signals use whole-word and whole-phrase matching (spec 15).
+  - Known employers match the full register name, case-insensitive (specs 01 and 05).
+  - Updated `architecture-context.md`, `data-model-context.md`, `security-context.md`, `ui-context.md`, `testing-context.md`, and spec 13.
 
 - Context change, job-ad wording (2026-10-04). Docs only, no code:
-    - New `TermMatcher` (spec 14): whole words or phrases, plural "s", hyphens as spaces, curly apostrophes as straight. Used by `AiDetector` and `CareersSignals`.
-    - Spec 15: `mentions_visa_sponsorship` replaced by `visa_sponsorship` (`offered`, `not_offered`, null) with offer, refusal, and right to work term lists. Refusal beats offer.
-    - Spec 15: more role titles, careers link wording, and job board hosts (Workday, SuccessFactors, SmartRecruiters, Pinpoint, Personio, Breezy).
-    - Spec 14: more AI terms (genai, large language model, mlops, ai-powered).
-    - Updated specs 10, 12, 13 and `architecture`, `data-model`, `ui`, `testing`, `code-standards`, `project-overview`.
+  - New `TermMatcher` (spec 14): whole words or phrases, plural "s", hyphens as spaces, curly apostrophes as straight. Used by `AiDetector` and `CareersSignals`.
+  - Spec 15: `mentions_visa_sponsorship` replaced by `visa_sponsorship` (`offered`, `not_offered`, null) with offer, refusal, and right to work term lists. Refusal beats offer.
+  - Spec 15: more role titles, careers link wording, and job board hosts (Workday, SuccessFactors, SmartRecruiters, Pinpoint, Personio, Breezy).
+  - Spec 14: more AI terms (genai, large language model, mlops, ai-powered).
+  - Updated specs 10, 12, 13 and `architecture`, `data-model`, `ui`, `testing`, `code-standards`, `project-overview`.
 
 - Git rule (2026-10-04): the agent never commits or pushes. Added `.claude/settings.json` with deny rules for git write commands. Updated `AGENTS.md`, `ai-workflow-rules.md`, and `github-workflow-context.md`.
 
 - Feature 01: Project setup (2026-10-04):
-    - `config/sponsor-finder.php`: API keys, `batch_size` (100), `rate_per_minute` (30), `routes`, `tech_sic_codes` (strings), `tech_keywords`, `noise_keywords`, `known_employers` (30, with the check-the-register note), `priority_locations`.
-    - Empty env values fall back to the defaults (`env(...) ?: default`), because `.env.example` lists the keys with no value. `SPONSOR_ROUTES` is a comma-separated list, and empty means the three default routes.
-    - `.env.example`: `APP_NAME="Sponsor Finder"` and empty `COMPANIES_HOUSE_KEY`, `BRAVE_SEARCH_KEY`, `SPONSOR_BATCH_SIZE`, `SPONSOR_RATE_PER_MINUTE`.
-    - `phpunit.xml` pins all five sponsor env keys to empty, so tests see the defaults and never the real keys.
-    - `storage/app/imports` and `storage/app/exports`, each with a `.gitignore` that ignores everything but itself. `storage/app/.gitignore` now un-ignores both folders.
-    - `tests/Unit/Config/SponsorFinderConfigTest.php` (6 tests). `composer ci:check` passes (97 tests).
-    - `context/*.md` reformatted with `npm run check:fix` (table padding only), so `vp check` passes.
+  - `config/sponsor-finder.php`: API keys, `batch_size` (100), `rate_per_minute` (30), `routes`, `tech_sic_codes` (strings), `tech_keywords`, `noise_keywords`, `known_employers` (30, with the check-the-register note), `priority_locations`.
+  - Empty env values fall back to the defaults (`env(...) ?: default`), because `.env.example` lists the keys with no value. `SPONSOR_ROUTES` is a comma-separated list, and empty means the three default routes.
+  - `.env.example`: `APP_NAME="Sponsor Finder"` and empty `COMPANIES_HOUSE_KEY`, `BRAVE_SEARCH_KEY`, `SPONSOR_BATCH_SIZE`, `SPONSOR_RATE_PER_MINUTE`.
+  - `phpunit.xml` pins all five sponsor env keys to empty, so tests see the defaults and never the real keys.
+  - `storage/app/imports` and `storage/app/exports`, each with a `.gitignore` that ignores everything but itself. `storage/app/.gitignore` now un-ignores both folders.
+  - `tests/Unit/Config/SponsorFinderConfigTest.php` (6 tests). `composer ci:check` passes (97 tests).
+  - `context/*.md` reformatted with `npm run check:fix` (table padding only), so `vp check` passes.
 
 - Feature 02: Sponsors table (2026-10-04):
     - Migration `2026_10_04_000001_create_sponsors_table`: every spec 02 column, `team_id` cascade on delete, `priority` and `status` indexed, unique on `team_id` + `name` + `town`. Runs, rolls back, and re-runs on local MySQL.
@@ -116,15 +116,23 @@ Update this file whenever the current phase, active feature, or implementation s
     - Fixes from the live check: `CompanyName` also cuts at "t/as" and "t/a's" (403 register names), and both now match live. "t.a" is not handled (8 names), because it would break names like "I.T.A Tax Accounting". `config/sponsor-finder.php` trims both API keys (the local `.env` had a tab before the key), and `CompaniesHouse` throws `CompaniesHouseRequestFailed::invalidKey()` for a key with control characters instead of letting Guzzle's error escape. Tests added for both.
     - Base URL moved to config (`companies_house_url`, `COMPANIES_HOUSE_URL`, default the live API), added to `.env` and `.env.example`, pinned empty in `phpunit.xml`. Tests for the default, env override, and the client using it.
 
+- Feature 05: Employer classification (2026-10-05):
+    - `App\Support\EmployerClassifier::classify(string $name, array $sicCodes): ?TechReason`. In order: a tech SIC code (`Sic`), a whole-word tech keyword in the normalised name with no noise keyword (`Keyword`), the full register name in `known_employers` ignoring case and extra spaces (`KnownEmployer`), else null. Instance class with the four config lists injected through the constructor. Pure.
+    - `tests/Unit/Support/EmployerClassifierTest.php` (27 tests): every spec 05 case, plus SIC before name, more noise and whole-word cases, custom lists, and reading config. `composer ci:check` passes.
+    - Real names (no SIC codes yet): of 122,938 sponsors, 3,707 are `Keyword` (mostly "technologies", "technology", "tech", "digital", "software") and 20 are `KnownEmployer`.
+    - Only 20 of the 30 starter `known_employers` match a register name exactly. The other 10 are spelled differently in the 2026-10-02 register (see Open Questions). Config not changed.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 05: Employer classification.
+- Feature 06: Web search.
 
 ## Open Questions
+
+- `known_employers`: 10 of the 30 starter names do not match the 2026-10-02 register. Register spellings: "BT Group" (British Telecommunications plc), "HSBC Holdings plc" (HSBC UK Bank plc), "NatWest Group PLC" (National Westminster Bank plc), "Jet2.com" (Jet2.com Limited), "Asda Stores Ltd" (Asda Stores Limited), "J Sainsbury Plc" (Sainsbury's Supermarkets Ltd), "Marks and Spencer Group Plc" (Marks and Spencer plc), "Rightmove Group Ltd" (Rightmove plc), "Ernst & Young" (Ernst & Young LLP), "Tata Consultancy Services" (Tata Consultancy Services Limited). Replace them in `config/sponsor-finder.php`?
 
 - Which search provider to use long term if Brave limits are too tight.
 - Where will the app be hosted, if anywhere beyond local Herd?
