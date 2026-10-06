@@ -20,20 +20,22 @@ Checks run in this order and stop at the first hit:
 ## Rules
 
 - Keep the classifier pure. No database or HTTP. Config is passed in or read once, so tests can set it.
+- Built as an instance class (decided 2026-10-05): the four lists come in through the constructor (`#[Config]` attributes), so `app(EmployerClassifier::class)` reads config once and tests can build one with their own lists. The enrich job (spec 08) gets it injected and calls `$classifier->classify($name, $sicCodes)`.
+- Keyword matching splits the normalised name into words, so a keyword matches only a whole word and the trading name after "t/a" is ignored.
 - Match whole words only, so "ai" does not match "maintenance" and "web" does not match "webster".
 - Only `active` companies continue in the pipeline. The enrich job checks status, not the classifier.
 
 ## Check When Done
 
 - Unit tests for:
-    - a tech SIC code gives `Sic`
-    - mixed codes with one tech code give `Sic`
-    - no tech code but a tech keyword in the name gives `Keyword`
-    - a tech keyword plus a noise keyword gives null (for example "Digital Care Ltd")
-    - a known employer gives `KnownEmployer`
-    - "SKY UK LIMITED" and "Sky UK Limited" (extra space) give `KnownEmployer`
-    - "Sky Limited" and "Sky UK Ltd" give null (the full register name must match)
-    - "Acme Property Developer Ltd" gives null (tech keyword plus the noise keyword "property")
-    - no codes, no keyword, not known gives null
-    - empty codes and an empty name give null
-    - whole-word matching (for example "Maintenance Services" is not `Keyword`)
+  - a tech SIC code gives `Sic`
+  - mixed codes with one tech code give `Sic`
+  - no tech code but a tech keyword in the name gives `Keyword`
+  - a tech keyword plus a noise keyword gives null (for example "Digital Care Ltd")
+  - a known employer gives `KnownEmployer`
+  - "SKY UK LIMITED" and "Sky UK Limited" (extra space) give `KnownEmployer`
+  - "Sky Limited" and "Sky UK Ltd" give null (the full register name must match)
+  - "Acme Property Developer Ltd" gives null (tech keyword plus the noise keyword "property")
+  - no codes, no keyword, not known gives null
+  - empty codes and an empty name give null
+  - whole-word matching (for example "Maintenance Services" is not `Keyword`)
