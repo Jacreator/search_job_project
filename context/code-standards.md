@@ -48,4 +48,5 @@
 ## Style
 
 - Laravel Pint with the `laravel` preset (`pint.json`).
+- Markdown uses 2-space indentation (`.editorconfig` and the `fmt.overrides` entry in `vite.config.ts`). Everything else uses 4. `npm run check:fix` applies it.
 - Short comments only where the reason is not obvious.

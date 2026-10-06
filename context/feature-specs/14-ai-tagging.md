@@ -59,13 +59,13 @@ Both use `TermMatcher` with `ai_keywords`. No database or HTTP.
 
 - Migration runs and rolls back.
 - `TermMatcher` unit tests:
-    - whole word and whole phrase match
-    - plural "s" matches ("developers", "LLMs")
-    - hyphen and space forms match each other ("ai-powered" and "ai powered", "full-stack" and "full stack")
-    - curly and straight apostrophes match ("we’re hiring" and "we're hiring")
-    - no match inside other words ("email", "maintain", "html")
-    - "node.js" matches, "node" alone does not
-    - empty text or empty term list is false
+  - whole word and whole phrase match
+  - plural "s" matches ("developers", "LLMs")
+  - hyphen and space forms match each other ("ai-powered" and "ai powered", "full-stack" and "full stack")
+  - curly and straight apostrophes match ("we’re hiring" and "we're hiring")
+  - no match inside other words ("email", "maintain", "html")
+  - "node.js" matches, "node" alone does not
+  - empty text or empty term list is false
 - `AiDetector` unit tests: each term matches, including "genai", "large language model", "mlops", and "AI-powered".
 - Enrich job: name match sets `ai_source` to `name`. Homepage match sets `ai_source` to `homepage`. No match leaves `is_ai` false.
 - `Http::fake()` records no extra request for the homepage AI check.
