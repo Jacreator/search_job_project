@@ -53,10 +53,10 @@ From the careers page text (stripped, same 200 KB cap as spec 07), using `TermMa
 
 - `mentions_developer_roles`: true when any `developer_role_terms` entry matches, else false.
 - `visa_sponsorship`, checked in this order:
-    1. Any `visa_refusal_terms` entry matches: `NotOffered`. A refusal beats an offer, because pages that say both usually carry a standard "we are unable to offer visa sponsorship" disclaimer.
-    2. Else any `visa_offer_terms` entry matches: `Offered`.
-    3. Else any `right_to_work_terms` entry matches: `NotOffered`.
-    4. Else null.
+  1. Any `visa_refusal_terms` entry matches: `NotOffered`. A refusal beats an offer, because pages that say both usually carry a standard "we are unable to offer visa sponsorship" disclaimer.
+  2. Else any `visa_offer_terms` entry matches: `Offered`.
+  3. Else any `right_to_work_terms` entry matches: `NotOffered`.
+  4. Else null.
 
 Signal detection lives in a pure helper, `App\Support\CareersSignals`, so it can be unit tested without HTTP.
 
@@ -93,16 +93,16 @@ In `routes/console.php`: `sponsors:careers` hourly, `withoutOverlapping()`.
 - New link wording is found ("Open roles", "We’re hiring").
 - First 200 response wins. Non-200 candidates are skipped.
 - `CareersSignals` unit tests:
-    - developer terms found and not found, including plurals ("Software Engineers") and hyphen forms ("Full-Stack")
-    - "node.js" and "nodejs" set `mentions_developer_roles`, "a node in the network" does not
-    - "phpunit" alone does not set `mentions_developer_roles`
-    - "Visa sponsorship available" gives `Offered`
-    - "We are unable to offer visa sponsorship" gives `NotOffered`, not `Offered`
-    - a page with both an offer and a refusal gives `NotOffered`
-    - "You must have the right to work in the UK" alone gives `NotOffered`
-    - an offer plus a right to work line gives `Offered`
-    - "event sponsorship" alone gives null
-    - no visa wording at all gives null
+  - developer terms found and not found, including plurals ("Software Engineers") and hyphen forms ("Full-Stack")
+  - "node.js" and "nodejs" set `mentions_developer_roles`, "a node in the network" does not
+  - "phpunit" alone does not set `mentions_developer_roles`
+  - "Visa sponsorship available" gives `Offered`
+  - "We are unable to offer visa sponsorship" gives `NotOffered`, not `Offered`
+  - a page with both an offer and a refusal gives `NotOffered`
+  - "You must have the right to work in the UK" alone gives `NotOffered`
+  - an offer plus a right to work line gives `Offered`
+  - "event sponsorship" alone gives null
+  - no visa wording at all gives null
 - `careers_checked_at` is set in every outcome, and the command does not queue checked rows again.
 - Rows below confidence 50, without a website, or not `done` are never queued.
 - Command orders by priority and respects `--team` and `--limit`.

@@ -13,10 +13,10 @@ Wire the services into one queued job per sponsor.
 ## Steps
 
 1. If status is `pending`:
-    - Find the company. No match: set `skipped` with skip reason `NoMatch`, stop.
-    - Fetch the profile, save number, status, and SIC codes.
-    - Classify with `EmployerClassifier::classify($name, $sicCodes)` (spec 05). Save `tech_reason`, and set `is_tech` to true when it is not null, else false.
-    - Set `ch_done`.
+   - Find the company. No match: set `skipped` with skip reason `NoMatch`, stop.
+   - Fetch the profile, save number, status, and SIC codes.
+   - Classify with `EmployerClassifier::classify($name, $sicCodes)` (spec 05). Save `tech_reason`, and set `is_tech` to true when it is not null, else false.
+   - Set `ch_done`.
 2. If the company is not active: set `skipped` with skip reason `Inactive`, stop.
 3. If not tech: set `skipped` with skip reason `NotTech`, stop.
 4. Search, score, verify. Save website and confidence. Set `done`.

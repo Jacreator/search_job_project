@@ -73,5 +73,13 @@ export default defineConfig({
             functions: ['clsx', 'cn', 'cva'],
             stylesheet: 'resources/css/app.css',
         },
+        overrides: [
+            {
+                files: ['**/*.md'],
+                options: {
+                    tabWidth: 2,
+                },
+            },
+        ],
     },
 });

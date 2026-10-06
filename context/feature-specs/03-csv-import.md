@@ -39,9 +39,9 @@ The register has one row per organisation per route, and sometimes repeats a row
 ## Rating
 
 - Parse `rating_grade` from the "Type & Rating" column. The register wraps the grade in "Worker (...)" or, on Graduate Trainee rows, "Temporary Worker (...)", for example "Worker (A rating)". Case and extra spaces are ignored.
-    - "A rating", "A (Premium)" and "A (SME+)" give `A`.
-    - "B rating" gives `B`.
-    - Anything else gives null, including "UK Expansion Worker: Provisional".
+  - "A rating", "A (Premium)" and "A (SME+)" give `A`.
+  - "B rating" gives `B`.
+  - Anything else gives null, including "UK Expansion Worker: Provisional".
 - Parsing lives in a small pure helper, `App\Support\SponsorRating::grade(string): ?string`.
 - The status rules for a grade change live in one place, `App\Services\RatingChange::apply(Sponsor $sponsor, string $grade)`, used by both import and the dashboard (spec 12).
 - Add `skip_b_rated` to `config/sponsor-finder.php` (`SPONSOR_SKIP_B_RATED`, default true).
