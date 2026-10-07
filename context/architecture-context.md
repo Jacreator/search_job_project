@@ -27,7 +27,7 @@
 - `app/Services/CompaniesHouse` - all Companies House HTTP calls and name matching.
 - `app/Contracts/WebSearch` - the search interface, bound in `AppServiceProvider`. `app/Services/BraveWebSearch` makes all search API calls and returns `SearchResult` value objects. Swap the binding to change provider.
 - `app/Services/WebsiteScorer` - pure scoring logic. No HTTP.
-- `app/Services/WebsiteVerifier` - loads a homepage, checks for the company name, and returns the page text (`VerifiedPage`).
+- `app/Services/WebsiteVerifier` - loads a homepage, checks for the company name, and returns the page text (`VerifiedPage`). Checks every redirect hop for a public address through `HostResolver`.
 - `app/Services/SharedLookup` - finds a reusable lookup from another sharing team. Database only.
 - `app/Services/RatingChange` - applies the status rules for a rating change. Used by import and the dashboard.
 - `app/Services/RegisterDownload` - finds the latest register CSV through the GOV.UK content API and saves it to `storage/app/imports`. All GOV.UK HTTP calls.
@@ -115,7 +115,7 @@ All tunable values live in `config/sponsor-finder.php`. Values that change per e
 - `SPONSOR_ROUTES` (worker routes to import)
 - `SPONSOR_SKIP_B_RATED` (default true)
 
-Lists live in the config file itself: `tech_sic_codes`, `tech_keywords`, `noise_keywords`, `known_employers` (starter list the user checks against the register), `priority_locations`, `ai_keywords`, `careers_link_terms`, `job_board_hosts`, `developer_role_terms`, `visa_offer_terms`, `visa_refusal_terms`, `right_to_work_terms`.
+Lists live in the config file itself: `tech_sic_codes`, `tech_keywords`, `noise_keywords`, `known_employers` (starter list checked against the register), `priority_locations`, `blocked_domains` (directory and social sites the website scorer skips), `ai_keywords`, `careers_link_terms`, `job_board_hosts`, `developer_role_terms`, `visa_offer_terms`, `visa_refusal_terms`, `right_to_work_terms`.
 
 ## Invariants
 

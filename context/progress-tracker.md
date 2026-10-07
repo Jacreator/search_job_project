@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 06 complete. Feature 07 not started.
+- Feature 07 complete. Feature 08 not started.
 
 ## Current Goal
 
-- Feature 07: Website scoring
+- Feature 08: Enrich job
 
 ## Completed
 
@@ -132,17 +132,25 @@ Update this file whenever the current phase, active feature, or implementation s
   - Tests: `tests/Unit/Services/BraveWebSearchTest.php` (binding, parsing, request params and header, empty and malformed responses, bad items, retries, 401/403/422 not retried, connection, missing and bad key), `tests/Unit/Support/SearchQueryTest.php`. Fixtures in `tests/Fixtures/brave/`. `composer ci:check` passes (296 tests).
   - Live check (2026-10-07, real key): "IDAQ LIMITED Sheffield" returned 10 parsed results. All were directory or profile pages (Companies House, LinkedIn, Yell, Cylex, Endole, companycheck, misterwhat), none the company's own site, so spec 07 scoring must rank directories low.
 
+- Known employers respelled (2026-10-07): the 10 `known_employers` names that did not match the register now use the register spellings (BT Group, HSBC Holdings plc, NatWest Group PLC, Jet2.com, Asda Stores Ltd, J Sainsbury Plc, Marks and Spencer Group Plc, Rightmove Group Ltd, Ernst & Young, Tata Consultancy Services), each checked against `register-2026-10-02.csv`. All 30 now match a local sponsor (4 differ only in letter case, which matching ignores). Config and spec 01 updated, open question closed. Tests: the config test pins all 30 and the new spellings, `EmployerClassifierTest` checks new spellings match and old ones do not.
+
+- Feature 07: Website scoring and verification (2026-10-07):
+  - `App\Services\WebsiteScorer` (pure, blocked domains injected from config): `best($name, $results): ?WebsiteCandidate` and `confidence(WebsiteCandidate, VerifiedPage): int` (+25 when the page names the company, cap 100). Scores per spec 07, with these choices written into the spec: blocked domains match the host, not the URL (dotted entries block the domain and subdomains, bare entries any host containing them); hyphens ignored in the host; a first word under 3 characters must start a host label; title match is whole-word on the normalised title; ties go to the earlier result; null when nothing scores above 0.
+  - `blocked_domains` in `config/sponsor-finder.php`: the spec 07 list plus 37 directory, sponsor-list, listing, and job sites seen in live checks (cylex, misterwhat, companycheck, and others listed in spec 07). `maps.apple.com` and `www.nhs.uk` exact, so Apple and NHS trust sites are not blocked.
+  - `App\Services\WebsiteVerifier::verify($url, $name): VerifiedPage` (`mentionsName`, `text`). Follows up to 5 redirects by hand, checks every address of each host is public through `App\Services\HostResolver`, pins the request with `CURLOPT_RESOLVE`, 10 s timeout, aborts over 2 MB, strips scripts, styles, comments, and tags, caps text at 200 KB (UTF-8 safe). Any error, non-2xx, or blocked hop gives `VerifiedPage::failed()`. Guzzle's default user agent: a custom one got 403 from a live site.
+  - Value objects `WebsiteCandidate` (url, score) and `VerifiedPage`. Not wired into a job yet.
+  - Tests: `tests/Unit/Services/WebsiteScorerTest.php` (FourJaw 55, The Floow 75, Sumo Digital 75, every blocked domain never returned, host-only blocking, short first words, ties, null cases, confidence), `tests/Unit/Services/WebsiteVerifierTest.php` (name found, not found, request error, error status, 200 KB cap, redirects, private and local addresses, non-web schemes, redirect limit). Fixture `tests/Fixtures/websites/fourjaw.html`. `composer ci:check` passes (408 tests).
+  - Live check (2026-10-07, 20 Brave credits over two runs) on the first 10 Sheffield sponsors (the feature 04 set). Final: 1986 The Kebab Kafe gets `https://1986kebab.co.uk` (55, name on page, confidence 80), A1 Taxis Sheffield Ltd gets `https://a1sheffieldtaxis.co.uk` (55, name on page, confidence 80), the other 8 get no website. The first run found the verifier failing on every site (Guzzle's stream handler refuses curl options), a 403 from a custom user agent, and the directories now blocked; all fixed. After the second run `www.nhs.uk` was added, which takes 1OSD Ltd and Abbey Care from `www.nhs.uk` (15) to no website (checked offline with the same results). 1OSD trades as One Smile Dental, so its real site has no name match.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 07: Website scoring.
+- Feature 08: Enrich job.
 
 ## Open Questions
-
-- `known_employers`: 10 of the 30 starter names do not match the 2026-10-02 register. Register spellings: "BT Group" (British Telecommunications plc), "HSBC Holdings plc" (HSBC UK Bank plc), "NatWest Group PLC" (National Westminster Bank plc), "Jet2.com" (Jet2.com Limited), "Asda Stores Ltd" (Asda Stores Limited), "J Sainsbury Plc" (Sainsbury's Supermarkets Ltd), "Marks and Spencer Group Plc" (Marks and Spencer plc), "Rightmove Group Ltd" (Rightmove plc), "Ernst & Young" (Ernst & Young LLP), "Tata Consultancy Services" (Tata Consultancy Services Limited). Replace them in `config/sponsor-finder.php`?
 
 - Which search provider to use long term if Brave limits are too tight.
 - Where will the app be hosted, if anywhere beyond local Herd?
@@ -154,7 +162,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Sponsors get a region and priority from their town at import. Sheffield is highest. Enrich and careers queues run highest priority first.
 - B-rated sponsors are skipped at import by default (`skip_b_rated`), because as far as the user knows they cannot issue new certificates of sponsorship.
 - Re-import updates `rating_grade`. With `skip_b_rated` on: A to B sets `skipped` with `BRating` whatever the status, keeping results, website, and `confirmed`. B to A on a `BRating` row sets `pending` and clears `skip_reason`, keeping results. Rows skipped for other reasons are not changed. The import summary reports both counts.
-- `known_employers` ships with a starter list of 30 large UK employers. The user checks each name against the latest register CSV and can add more. Matching uses the full register name, ignoring only case and extra spaces.
+- `known_employers` ships with a starter list of 30 large UK employers, all spelled as in the 2026-10-02 register. New names are checked against the latest register before they are added. Matching uses the full register name, ignoring only case and extra spaces.
 - Missing rating grades are set by owners or admins in the dashboard. Import never clears a stored grade. A register grade always replaces a hand-set one. All grade changes go through `RatingChange`.
 - Careers signal and AI term matching goes through `TermMatcher`: whole word or phrase, case-insensitive, plural "s", hyphens as spaces.
 - Visa sponsorship is three-state (`offered`, `not_offered`, null). Refusal wording beats offer wording, and a right to work line alone counts as not offered.
