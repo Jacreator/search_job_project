@@ -107,40 +107,70 @@ return [
         'pharmacy', 'school', 'property',
     ],
 
-    // Starter list. Check each name against the latest register CSV and add
-    // more as needed. Matching uses the full register name, ignoring only
+    // Starter list, every name checked against the 2026-10-02 register CSV.
+    // Check new names against the latest register before adding them. Matching uses the full register name, ignoring only
     // letter case and extra spaces, so suffixes like "Limited" must match.
     'known_employers' => [
         'Sky UK Limited',
-        'British Telecommunications plc',
+        'BT Group',
         'Barclays Bank UK PLC',
         'Lloyds Bank plc',
-        'HSBC UK Bank plc',
-        'National Westminster Bank plc',
+        'HSBC Holdings plc',
+        'NatWest Group PLC',
         'Santander UK plc',
         'Nationwide Building Society',
         'Yorkshire Building Society',
         'Leeds Building Society',
         'Skipton Building Society',
-        'Jet2.com Limited',
-        'Asda Stores Limited',
+        'Jet2.com',
+        'Asda Stores Ltd',
         'Wm Morrison Supermarkets Limited',
         'Tesco Stores Limited',
-        "Sainsbury's Supermarkets Ltd",
-        'Marks and Spencer plc',
+        'J Sainsbury Plc',
+        'Marks and Spencer Group Plc',
         'British Broadcasting Corporation',
-        'Rightmove plc',
+        'Rightmove Group Ltd',
         'Capita plc',
         'Accenture (UK) Limited',
         'Capgemini UK plc',
         'Deloitte LLP',
         'PricewaterhouseCoopers LLP',
-        'Ernst & Young LLP',
+        'Ernst & Young',
         'KPMG LLP',
         'Infosys Limited',
-        'Tata Consultancy Services Limited',
+        'Tata Consultancy Services',
         'Wipro Limited',
         'Cognizant Worldwide Limited',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Website Scoring
+    |--------------------------------------------------------------------------
+    |
+    | Search results on these sites are never a sponsor's website. An entry
+    | with a dot ("x.com") blocks that domain and its subdomains. An entry
+    | without a dot ("linkedin") blocks any host that contains it.
+    |
+    */
+
+    'blocked_domains' => [
+        // Social and reference sites.
+        'linkedin', 'facebook', 'twitter', 'x.com', 'instagram', 'youtube', 'wikipedia',
+        // Company data and directories.
+        'company-information.service.gov.uk', 'gov.uk', 'endole', 'opencorporates',
+        'crunchbase', 'dealroom', 'prospeo', 'bloomberg', 'zoominfo', 'rocketreach',
+        'yell.com', 'cylex', 'misterwhat', 'companycheck', 'lursoft', 'companiesintheuk',
+        'dnb.com', 'kompass', '192.com', 'thomsonlocal', 'nextdoor', 'mapcarta', 'mapquest',
+        'maps.apple.com', 'automapa', 'azure-book.com',
+        // UK visa sponsor lists.
+        'licensed-sponsors-uk', 'checkall', 'immigrationgpt', 'huntukvisasponsors',
+        'sponsorlicensechecker', 'ukvisasponsorshipchecker', 'ukmovecheck', 'visapath',
+        // Restaurant, care, and dental listings.
+        'restaurantguru', 'halalresmenu', 'wheree', 'hungryfoody', 'halalguide',
+        'www.nhs.uk', 'cqc.org.uk', 'carechoices.co.uk', 'autumna', 'dentalchoices', 'ouch.ai',
+        // Job boards.
+        'glassdoor', 'indeed', 'reed.co.uk', 'companyjobs',
     ],
 
     /*

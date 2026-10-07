@@ -50,6 +50,14 @@ it('gives KnownEmployer for a known employer', function () {
         ->and(classifier()->classify('Tesco Stores Limited', ['47110']))->toBe(TechReason::KnownEmployer);
 });
 
+it('matches known employers by their register spelling', function (string $name) {
+    expect(classifier()->classify($name, []))->toBe(TechReason::KnownEmployer);
+})->with(['BT Group', 'NatWest Group PLC', 'Jet2.com', 'J Sainsbury Plc', 'Ernst & Young', 'Tata Consultancy Services']);
+
+it('does not match the old starter list spellings', function (string $name) {
+    expect(classifier()->classify($name, []))->toBeNull();
+})->with(['British Telecommunications plc', 'National Westminster Bank plc', "Sainsbury's Supermarkets Ltd", 'Rightmove plc']);
+
 it('matches known employers ignoring case and extra spaces', function (string $name) {
     expect(classifier()->classify($name, []))->toBe(TechReason::KnownEmployer);
 })->with([

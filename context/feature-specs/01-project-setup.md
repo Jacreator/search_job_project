@@ -43,9 +43,9 @@ Store them as strings (SIC codes from Companies House are strings).
 
 Starter list, written as the names appear on the sponsor register:
 
-`Sky UK Limited, British Telecommunications plc, Barclays Bank UK PLC, Lloyds Bank plc, HSBC UK Bank plc, National Westminster Bank plc, Santander UK plc, Nationwide Building Society, Yorkshire Building Society, Leeds Building Society, Skipton Building Society, Jet2.com Limited, Asda Stores Limited, Wm Morrison Supermarkets Limited, Tesco Stores Limited, Sainsbury's Supermarkets Ltd, Marks and Spencer plc, British Broadcasting Corporation, Rightmove plc, Capita plc, Accenture (UK) Limited, Capgemini UK plc, Deloitte LLP, PricewaterhouseCoopers LLP, Ernst & Young LLP, KPMG LLP, Infosys Limited, Tata Consultancy Services Limited, Wipro Limited, Cognizant Worldwide Limited`
+`Sky UK Limited, BT Group, Barclays Bank UK PLC, Lloyds Bank plc, HSBC Holdings plc, NatWest Group PLC, Santander UK plc, Nationwide Building Society, Yorkshire Building Society, Leeds Building Society, Skipton Building Society, Jet2.com, Asda Stores Ltd, Wm Morrison Supermarkets Limited, Tesco Stores Limited, J Sainsbury Plc, Marks and Spencer Group Plc, British Broadcasting Corporation, Rightmove Group Ltd, Capita plc, Accenture (UK) Limited, Capgemini UK plc, Deloitte LLP, PricewaterhouseCoopers LLP, Ernst & Young, KPMG LLP, Infosys Limited, Tata Consultancy Services, Wipro Limited, Cognizant Worldwide Limited`
 
-The user must check each name against the latest register CSV and can add more. Put the same note as a comment above the list in `config/sponsor-finder.php`.
+Every name was checked against the 2026-10-02 register CSV (10 were respelled on 2026-10-07 to match it). Check new names against the latest register before adding them. Put the same note as a comment above the list in `config/sponsor-finder.php`.
 
 Matching follows spec 05: the full register name must equal an entry, ignoring only letter case and extra spaces. Suffixes such as "Limited" or "plc" are not removed, so each entry must be the exact register name.
 

@@ -79,8 +79,22 @@ it('has tech and noise keywords', function () {
 
 it('has a starter list of known employers', function () {
     expect(config('sponsor-finder.known_employers'))
-        ->not->toBeEmpty()
+        ->toHaveCount(30)
         ->toContain('Sky UK Limited');
+});
+
+it('spells known employers as the register does', function () {
+    expect(config('sponsor-finder.known_employers'))
+        ->toContain(
+            'BT Group', 'HSBC Holdings plc', 'NatWest Group PLC', 'Jet2.com', 'Asda Stores Ltd',
+            'J Sainsbury Plc', 'Marks and Spencer Group Plc', 'Rightmove Group Ltd', 'Ernst & Young',
+            'Tata Consultancy Services',
+        )
+        ->not->toContain(
+            'British Telecommunications plc', 'HSBC UK Bank plc', 'National Westminster Bank plc',
+            'Jet2.com Limited', 'Asda Stores Limited', "Sainsbury's Supermarkets Ltd", 'Marks and Spencer plc',
+            'Rightmove plc', 'Ernst & Young LLP', 'Tata Consultancy Services Limited',
+        );
 });
 
 it('gives Sheffield the highest priority', function () {
