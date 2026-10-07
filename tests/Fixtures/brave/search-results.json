@@ -1,0 +1,31 @@
+{
+    "type": "search",
+    "query": {
+        "original": "Acme Software Ltd Sheffield",
+        "country": "gb"
+    },
+    "web": {
+        "type": "search",
+        "results": [
+            {
+                "title": "Acme Software | Bespoke software in Sheffield",
+                "url": "https://www.acmesoftware.co.uk/",
+                "description": "<strong>Acme Software</strong> builds web apps for businesses across Yorkshire.",
+                "profile": {
+                    "name": "Acme Software",
+                    "url": "https://www.acmesoftware.co.uk/"
+                }
+            },
+            {
+                "title": "ACME SOFTWARE LIMITED - Find and update company information",
+                "url": "https://find-and-update.company-information.service.gov.uk/company/01234567",
+                "description": "ACME SOFTWARE LIMITED - Free company information from Companies House."
+            },
+            {
+                "title": "Acme Software Ltd | LinkedIn",
+                "url": "https://uk.linkedin.com/company/acme-software",
+                "description": "Acme Software Ltd | 25 followers on LinkedIn."
+            }
+        ]
+    }
+}
