@@ -25,14 +25,14 @@
 - `app/Jobs/EnrichSponsor` - one job per sponsor: runs the lookup pipeline for that row.
 - `app/Jobs/FindCareersPage` - one job per done sponsor: finds the careers page and hiring signals.
 - `app/Services/CompaniesHouse` - all Companies House HTTP calls and name matching.
-- `app/Services/WebSearch` - all search API calls. Behind an interface so the provider can change.
+- `app/Contracts/WebSearch` - the search interface, bound in `AppServiceProvider`. `app/Services/BraveWebSearch` makes all search API calls and returns `SearchResult` value objects. Swap the binding to change provider.
 - `app/Services/WebsiteScorer` - pure scoring logic. No HTTP.
 - `app/Services/WebsiteVerifier` - loads a homepage, checks for the company name, and returns the page text (`VerifiedPage`).
 - `app/Services/SharedLookup` - finds a reusable lookup from another sharing team. Database only.
 - `app/Services/RatingChange` - applies the status rules for a rating change. Used by import and the dashboard.
 - `app/Services/RegisterDownload` - finds the latest register CSV through the GOV.UK content API and saves it to `storage/app/imports`. All GOV.UK HTTP calls.
 - `app/Services/RegisterImport` - reads the register CSV row by row and upserts one team's sponsors in chunks. Returns an `ImportSummary`.
-- `app/Support` - small pure helpers: `CompanyName` (normalisation), `EmployerClassifier`, `TermMatcher` (shared whole-word matching), `AiDetector`, `SponsorRating`, `PriorityLocations`, `CareersSignals`.
+- `app/Support` - small pure helpers: `CompanyName` (normalisation), `EmployerClassifier`, `SearchQuery` (web search query from name and town), `TermMatcher` (shared whole-word matching), `AiDetector`, `SponsorRating`, `PriorityLocations`, `CareersSignals`.
 - `app/Enums` - `SponsorStatus`, `TechReason`, `SkipReason`, `VisaSponsorship`.
 - `app/Http/Controllers/Sponsors` + `app/Http/Requests/Sponsors` - review dashboard only.
 - `resources/js/pages/sponsors` - review dashboard pages.

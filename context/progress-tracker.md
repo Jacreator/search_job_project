@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 05 complete. Feature 06 not started.
+- Feature 06 complete. Feature 07 not started.
 
 ## Current Goal
 
-- Feature 06: Web search
+- Feature 07: Website scoring
 
 ## Completed
 
@@ -124,13 +124,21 @@ Update this file whenever the current phase, active feature, or implementation s
 
 - Markdown indentation (2026-10-06): `.md` files use 2 spaces. `.editorconfig` sets `indent_size = 2` for `*.md`, and `vite.config.ts` adds a `fmt.overrides` entry (`**/*.md`, `tabWidth: 2`). `npm run check:fix` re-indented 7 files (whitespace only). Local `.vscode/settings.json` (git-ignored) sets 2-space tabs for Markdown. Noted in `code-standards.md`.
 
+- Feature 06: Web search (2026-10-06):
+  - `App\Contracts\WebSearch::search(string $query): array` (list of `App\Services\SearchResult`, url and title), bound to `App\Services\BraveWebSearch` in `AppServiceProvider`. Not wired into a job yet.
+  - `BraveWebSearch`: `GET https://api.search.brave.com/res/v1/web/search` with `X-Subscription-Token`, `q`, `country=gb`, `count=10`, reading `web.results`. Keeps only results with an `http`/`https` URL and a string title. An empty or malformed response gives `[]`.
+  - HTTP and connection errors throw `App\Exceptions\WebSearchRequestFailed` (missing key, key with control characters, HTTP status, connection), with messages free of the key and query. Two attempts; only connection errors, 429, and 5xx are retried.
+  - `App\Support\SearchQuery::for($name, $town)`: `"{name} {town}"` from the original name, trimmed, name alone when the town is `''` or null.
+  - Tests: `tests/Unit/Services/BraveWebSearchTest.php` (binding, parsing, request params and header, empty and malformed responses, bad items, retries, 401/403/422 not retried, connection, missing and bad key), `tests/Unit/Support/SearchQueryTest.php`. Fixtures in `tests/Fixtures/brave/`. `composer ci:check` passes (296 tests).
+  - Live check (2026-10-07, real key): "IDAQ LIMITED Sheffield" returned 10 parsed results. All were directory or profile pages (Companies House, LinkedIn, Yell, Cylex, Endole, companycheck, misterwhat), none the company's own site, so spec 07 scoring must rank directories low.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 06: Web search.
+- Feature 07: Website scoring.
 
 ## Open Questions
 
@@ -155,6 +163,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - The careers page finder is core scope (spec 15). It runs after `done`, has its own `careers-pages` limiter, and never calls paid APIs.
 - No confident Companies House match means the row is skipped, not guessed.
 - A Companies House API error throws `CompaniesHouseRequestFailed` (retried by the job), never returns null, so errors are not mistaken for no-matches.
+- A web search API error throws `WebSearchRequestFailed` the same way. Only an empty or malformed response gives an empty list.
 - Database queue, not Redis, to keep setup simple.
 - Keep the Laravel React starter kit as the foundation. The dashboard is a React/Inertia page behind login.
 - Sponsor data is scoped per team (`team_id` on `sponsors`). API keys and the rate limiters are shared.
