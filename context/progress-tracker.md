@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 07 complete. Feature 08 not started.
+- Feature 08 complete. Feature 09 not started.
 
 ## Current Goal
 
-- Feature 08: Enrich job
+- Feature 09: Batch command and schedule
 
 ## Completed
 
@@ -142,13 +142,20 @@ Update this file whenever the current phase, active feature, or implementation s
   - Tests: `tests/Unit/Services/WebsiteScorerTest.php` (FourJaw 55, The Floow 75, Sumo Digital 75, every blocked domain never returned, host-only blocking, short first words, ties, null cases, confidence), `tests/Unit/Services/WebsiteVerifierTest.php` (name found, not found, request error, error status, 200 KB cap, redirects, private and local addresses, non-web schemes, redirect limit). Fixture `tests/Fixtures/websites/fourjaw.html`. `composer ci:check` passes (408 tests).
   - Live check (2026-10-07, 20 Brave credits over two runs) on the first 10 Sheffield sponsors (the feature 04 set). Final: 1986 The Kebab Kafe gets `https://1986kebab.co.uk` (55, name on page, confidence 80), A1 Taxis Sheffield Ltd gets `https://a1sheffieldtaxis.co.uk` (55, name on page, confidence 80), the other 8 get no website. The first run found the verifier failing on every site (Guzzle's stream handler refuses curl options), a 403 from a custom user agent, and the directories now blocked; all fixed. After the second run `www.nhs.uk` was added, which takes 1OSD Ltd and Abbey Care from `www.nhs.uk` (15) to no website (checked offline with the same results). 1OSD trades as One Smile Dental, so its real site has no name match.
 
+- Feature 08: Enrich job (2026-10-07):
+  - `App\Jobs\EnrichSponsor` (one sponsor, `RateLimited('external-apis')`). Leaves anything but `pending` and `ch_done` alone, then increments `attempts`. Pending: Companies House match (none: `skipped` / `NoMatch`), profile, `EmployerClassifier`, save number, status, SIC codes, `tech_reason`, `is_tech`, set `ch_done`. Then not `active` (null included): `skipped` / `Inactive`; not tech: `skipped` / `NotTech`; else search, score, verify, save website and confidence (both null when nothing scores), `done`. `skip_reason` and `error` cleared on done. `failed()` sets `failed` and the error (500 chars max), updating by id.
+  - Retries (approved by James): `$maxExceptions = 3`, `$backoff = [60, 300, 900]`, `retryUntil()` one day ahead, no `$tries`, because rate limiter releases count as tries. `$deleteWhenMissingModels`. Spec 08, spec 15, and `code-standards.md` updated.
+  - `external-apis` limiter in `AppServiceProvider` (`Limit::perMinute(rate_per_minute)`, one key shared by all teams).
+  - Tests: `tests/Feature/Sponsors/EnrichSponsorTest.php` (19): done with website and confidence, query is name and town, lower confidence when the page does not name the company, done with no website, no match, inactive (dissolved, liquidation, null) and not tech without a Brave call, keyword-tagged sponsor to done, ch_done resumes without Companies House, twice on done changes nothing, skipped and failed rows untouched, failure saves the error (Companies House and Brave), Companies House results kept when search fails, 500-char cap, retry settings, limiter from config. `composer ci:check` passes (427 tests).
+  - Live check (2026-10-07, real keys, 1 Brave credit) on the first 10 Sheffield sponsors: IDAQ LIMITED `done` (SIC 62030 tech, no website, all results directories), 3 `no_match` (the 3 sole traders), 6 `not_tech` (Aadipranavam now matches thanks to the "t/as" fix). These 10 local rows are now enriched. A second run of IDAQ through the database queue and `queue:work` changed nothing and left no failed jobs.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 08: Enrich job.
+- Feature 09: Batch command and schedule.
 
 ## Open Questions
 
@@ -172,6 +179,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - No confident Companies House match means the row is skipped, not guessed.
 - A Companies House API error throws `CompaniesHouseRequestFailed` (retried by the job), never returns null, so errors are not mistaken for no-matches.
 - A web search API error throws `WebSearchRequestFailed` the same way. Only an empty or malformed response gives an empty list.
+- Queued jobs fail after 3 real errors (`$maxExceptions` with `retryUntil()`), not 3 tries, so waiting on the rate limiter never fails a row.
 - Database queue, not Redis, to keep setup simple.
 - Keep the Laravel React starter kit as the foundation. The dashboard is a React/Inertia page behind login.
 - Sponsor data is scoped per team (`team_id` on `sponsors`). API keys and the rate limiters are shared.
