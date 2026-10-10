@@ -20,7 +20,7 @@
 ## Laravel
 
 - Commands stay thin: parse options, dispatch, report.
-- Jobs implement `ShouldQueue`, set `$maxExceptions`, `$backoff`, and `retryUntil()`, and use the `RateLimited` middleware. Do not set `$tries`: rate limiter releases count as tries, so jobs would fail without running.
+- Jobs implement `ShouldQueue` and `ShouldBeUnique` (keyed by sponsor id, `$uniqueFor` the same as `retryUntil()`, so a batch never queues a row twice), set `$maxExceptions`, `$backoff`, and `retryUntil()`, and use the `RateLimited` middleware. Do not set `$tries`: rate limiter releases count as tries, so jobs would fail without running.
 - Use `Http::timeout()` and `->retry()` on every outbound call.
 - Use `lazy()` or `chunkById()` for large queries. Never `all()` on `sponsors`.
 - Use enums for fixed value sets (`App\Enums\SponsorStatus`, `TechReason`, `SkipReason`, `VisaSponsorship`).

@@ -9,3 +9,8 @@ Schedule::call(function () {
         ->where('expires_at', '<', now())
         ->delete();
 })->daily()->description('Delete expired team invitations');
+
+Schedule::command('sponsors:enrich')
+    ->hourly()
+    ->withoutOverlapping()
+    ->description('Queue the next batch of sponsor lookups');

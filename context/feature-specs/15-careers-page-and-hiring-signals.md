@@ -37,7 +37,7 @@ The big employers in `known_employers` mostly use Workday or SuccessFactors, whi
 
 `App\Jobs\FindCareersPage`
 
-- One sponsor per job. `$maxExceptions = 3`, `$backoff = [60, 300, 900]`, `retryUntil()` one day ahead, as in spec 08 (rate limiter releases must not use up tries).
+- One sponsor per job. `$maxExceptions = 3`, `$backoff = [60, 300, 900]`, `retryUntil()` one day ahead, as in spec 08 (rate limiter releases must not use up tries). `ShouldBeUnique` per sponsor with `$uniqueFor = 86400`, as in spec 08, so the next batch never queues a row that is still waiting.
 - Middleware: `RateLimited('careers-pages')`. Register the `careers-pages` limiter in `AppServiceProvider` using `careers_rate_per_minute`.
 - Only runs for `done` rows with a website and confidence 50 or more.
 
