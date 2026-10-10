@@ -8,6 +8,7 @@ Wire the services into one queued job per sponsor.
 
 - `$maxExceptions = 3`, `$backoff = [60, 300, 900]`, `retryUntil()` one day ahead. No `$tries`: a job released by the rate limiter counts as a try, so with `$tries = 3` a batch bigger than the limit would fail rows that never ran (changed 2026-10-07, approved by James). A row now fails only after 3 real errors.
 - `$deleteWhenMissingModels = true`, so a deleted sponsor's job is dropped.
+- `ShouldBeUnique`, keyed by sponsor id, `$uniqueFor = 86400` (the same day as `retryUntil()`). A sponsor whose job is still queued or waiting on a retry is not queued again by the next batch, so no second attempt or search credit is spent on it. The lock is freed when the job finishes or fails (added 2026-10-09, approved by James).
 - Middleware: `RateLimited('external-apis')`
 - Increments `attempts` at the start, after checking the status (a `done`, `skipped`, or `failed` row is left alone, attempts included).
 

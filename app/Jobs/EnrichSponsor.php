@@ -14,6 +14,7 @@ use App\Services\WebsiteVerifier;
 use App\Support\EmployerClassifier;
 use App\Support\SearchQuery;
 use Carbon\CarbonInterface;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Middleware\RateLimited;
@@ -21,8 +22,9 @@ use Throwable;
 
 /**
  * Runs the lookup pipeline for one sponsor. Safe to run twice: each step checks the status first.
+ * Unique per sponsor, so a row still waiting on a retry is not queued again by the next batch.
  */
-final class EnrichSponsor implements ShouldQueue
+final class EnrichSponsor implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -39,6 +41,12 @@ final class EnrichSponsor implements ShouldQueue
 
     public bool $deleteWhenMissingModels = true;
 
+    /**
+     * Seconds the unique lock is held at most, the same as `retryUntil()`. The lock is released
+     * as soon as the job finishes or fails.
+     */
+    public int $uniqueFor = 86400;
+
     public function __construct(
         public readonly Sponsor $sponsor,
     ) {}
@@ -53,7 +61,12 @@ final class EnrichSponsor implements ShouldQueue
 
     public function retryUntil(): CarbonInterface
     {
-        return now()->addDay();
+        return now()->addSeconds($this->uniqueFor);
+    }
+
+    public function uniqueId(): string
+    {
+        return (string) $this->sponsor->getKey();
     }
 
     public function handle(

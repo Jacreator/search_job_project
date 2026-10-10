@@ -10,10 +10,14 @@ use App\Exceptions\WebSearchRequestFailed;
 use App\Jobs\EnrichSponsor;
 use App\Models\Sponsor;
 use App\Services\HostResolver;
+use Illuminate\Bus\UniqueLock;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Http\Client\Request;
 use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Sleep;
 
@@ -279,6 +283,46 @@ it('fails after three errors, with the spec backoff, and does not count rate lim
         ->and(property_exists($job, 'tries'))->toBeFalse()
         ->and($job->retryUntil()->isAfter(now()->addHours(23)))->toBeTrue();
 });
+
+it('is unique per sponsor for as long as it can retry', function () {
+    $sponsor = acme();
+    $job = new EnrichSponsor($sponsor);
+
+    expect($job)->toBeInstanceOf(ShouldBeUnique::class)
+        ->and($job->uniqueId())->toBe((string) $sponsor->id)
+        ->and($job->uniqueFor)->toBe(86400)
+        ->and($job->retryUntil()->diffInSeconds(now()->addDay()))->toBeLessThan(5);
+});
+
+it('queues a sponsor only once while its job is waiting', function () {
+    Queue::fake();
+    $sponsor = acme();
+    $other = Sponsor::factory()->create();
+
+    EnrichSponsor::dispatch($sponsor);
+    EnrichSponsor::dispatch($sponsor);
+    EnrichSponsor::dispatch($other);
+
+    Queue::assertPushed(EnrichSponsor::class, 2);
+});
+
+it('frees the sponsor to be queued again once the job finishes or fails', function (bool $fails) {
+    $fails
+        ? Http::fake([ENRICH_CH_SEARCH => Http::response('', 500)])
+        : fakeApis(results: [['url' => 'https://www.acmesoftware.co.uk', 'title' => 'Acme Software']]);
+    $sponsor = acme();
+
+    try {
+        EnrichSponsor::dispatch($sponsor);
+    } catch (CompaniesHouseRequestFailed) {
+        // The failure is the point of this case.
+    }
+
+    $lock = (new UniqueLock(app(Repository::class)))->acquire(new EnrichSponsor($sponsor));
+
+    expect($lock)->toBeTrue()
+        ->and($sponsor->refresh()->status)->toBe($fails ? SponsorStatus::Failed : SponsorStatus::Done);
+})->with(['finishes' => false, 'fails' => true]);
 
 it('uses the shared external-apis rate limiter from config', function () {
     config(['sponsor-finder.rate_per_minute' => 12]);

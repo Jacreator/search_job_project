@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 08 complete. Feature 09 not started.
+- Feature 09 complete. Feature 10 not started.
 
 ## Current Goal
 
-- Feature 09: Batch command and schedule
+- Feature 10: Export
 
 ## Completed
 
@@ -149,13 +149,25 @@ Update this file whenever the current phase, active feature, or implementation s
   - Tests: `tests/Feature/Sponsors/EnrichSponsorTest.php` (19): done with website and confidence, query is name and town, lower confidence when the page does not name the company, done with no website, no match, inactive (dissolved, liquidation, null) and not tech without a Brave call, keyword-tagged sponsor to done, ch_done resumes without Companies House, twice on done changes nothing, skipped and failed rows untouched, failure saves the error (Companies House and Brave), Companies House results kept when search fails, 500-char cap, retry settings, limiter from config. `composer ci:check` passes (427 tests).
   - Live check (2026-10-07, real keys, 1 Brave credit) on the first 10 Sheffield sponsors: IDAQ LIMITED `done` (SIC 62030 tech, no website, all results directories), 3 `no_match` (the 3 sole traders), 6 `not_tech` (Aadipranavam now matches thanks to the "t/as" fix). These 10 local rows are now enriched. A second run of IDAQ through the database queue and `queue:work` changed nothing and left no failed jobs.
 
+- Feature 09: Batch command and schedule (2026-10-09):
+  - `php artisan sponsors:enrich {--limit=} {--town=} {--region=} {--team=}` (`app/Console/Commands/EnrichSponsors.php`): `readyForLookup()` rows ordered by `priority` desc then `id`, limited to `--limit` or `batch_size` across all teams, one `EnrichSponsor` job each, prints the count. Town and region match ignoring case (`lower()`, portable). Fails on an unknown team or a limit that is not a whole number above 0.
+  - `php artisan sponsors:status {--team=}` (`app/Console/Commands/SponsorStatusReport.php`): three tables, counts per status, per `is_tech` (yes, no, not checked), and per `skip_reason` for skipped rows, every value listed with 0 when empty. All teams when `--team` is left out.
+  - `routes/console.php`: `sponsors:enrich` hourly, `withoutOverlapping()`. `schedule:list` shows `0 * * * * php artisan sponsors:enrich`.
+  - Tests: `tests/Feature/Sponsors/EnrichSponsorsCommandTest.php` (ready rows only, attempts limit, priority then id order, batch size, limit across teams, team, region, town, and combined filters, nothing ready, unknown team, bad limits, hourly schedule), `tests/Feature/Sponsors/SponsorStatusCommandTest.php` (one team, all teams, empty team, skipped with no reason, unknown team). `composer ci:check` passes (448 tests).
+  - Live check (2026-10-09, real keys, 8 Brave credits): `sponsors:enrich --team=johns-llc --town=Sheffield --limit=50` and the database queue worker. All 50 finished with no failures and no row on a second attempt: 8 `done` (6 with a website, for example ANSYS UK Ltd `https://www.ansys.com` 100, AEGIQ LTD `https://www.aegiq.com` 85), 34 `not_tech`, 5 `no_match`, 3 `inactive`. Sheffield now has 60 rows processed and 587 pending. The rate limiter released 20 jobs with a delay, and `queue:work --stop-when-empty` stopped before they were due, so a worker that keeps running (`composer dev` or `queue:work`) is needed to finish a batch.
+
+- `EnrichSponsor` unique per sponsor (2026-10-09, approved by James): `ShouldBeUnique`, `uniqueId()` the sponsor id, `$uniqueFor = 86400`, and `retryUntil()` now uses the same value. Before this, a row waiting on a retry when the next hourly run started was queued again, adding an attempt and possibly a second search credit. `sponsors:enrich` counts the skipped duplicates (`UniqueJobSkipped`) and prints "Left out N sponsors already queued." Locks use the default cache store (`database` locally, `cache_locks` table; `array` in tests).
+  - Tests: unique settings, a second dispatch of the same sponsor is dropped, the lock is freed after the job finishes and after it fails, and a second `sponsors:enrich` run leaves out rows still queued. `composer ci:check` passes (453 tests).
+  - Live check: two runs of `--town=Sheffield --limit=3` gave 3 queued then "Queued 0, left out 3"; after the worker finished them, no jobs or locks were left and the next run queued 3 new rows (removed again by hand, still `pending`).
+  - Specs 08, 09, 15 and `code-standards.md` updated (spec 15's careers job will be unique the same way).
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 09: Batch command and schedule.
+- Feature 10: Export.
 
 ## Open Questions
 
@@ -179,6 +191,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - No confident Companies House match means the row is skipped, not guessed.
 - A Companies House API error throws `CompaniesHouseRequestFailed` (retried by the job), never returns null, so errors are not mistaken for no-matches.
 - A web search API error throws `WebSearchRequestFailed` the same way. Only an empty or malformed response gives an empty list.
+- Batch jobs are unique per sponsor (`ShouldBeUnique`), so a scheduled run never queues a row that is still waiting.
 - Queued jobs fail after 3 real errors (`$maxExceptions` with `retryUntil()`), not 3 tries, so waiting on the rate limiter never fails a row.
 - Database queue, not Redis, to keep setup simple.
 - Keep the Laravel React starter kit as the foundation. The dashboard is a React/Inertia page behind login.
