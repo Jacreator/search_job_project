@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 09 complete. Feature 10 not started.
+- Feature 10 complete. Feature 11 not started.
 
 ## Current Goal
 
-- Feature 10: Export
+- Feature 11: Sponsor edit permission
 
 ## Completed
 
@@ -161,15 +161,26 @@ Update this file whenever the current phase, active feature, or implementation s
   - Live check: two runs of `--town=Sheffield --limit=3` gave 3 queued then "Queued 0, left out 3"; after the worker finished them, no jobs or locks were left and the next run queued 3 new rows (removed again by hand, still `pending`).
   - Specs 08, 09, 15 and `code-standards.md` updated (spec 15's careers job will be unique the same way).
 
+- Feature 10: Export (2026-10-10):
+  - `php artisan sponsors:export {--team=} {--min-confidence=50} {--town=} {--region=} {--confirmed} {--scale-up}` (`app/Console/Commands/ExportSponsors.php`): writes `storage/app/exports/{team-slug}_tech_sponsors_YYYY-MM-DD.csv` and prints the count and path. Fails on a missing or unknown team, or a `--min-confidence` that is not a whole number from 0 to 100.
+  - `App\Services\SponsorExport::export(Team, ExportFilters, string $path): int`: the team's `done` rows with a website and confidence at or above the minimum, ordered by confidence desc, then name, then id, streamed with `lazy()`. UTF-8 BOM, headers Name, Town, Region, Company number, SIC codes, Website, Confidence, Confirmed, Scale-up. Written as `.part` then renamed; failures throw `App\Exceptions\ExportFailed`.
+  - `App\Services\ExportFilters` (readonly value object) and `App\Support\CsvCell::safe()` (prefixes cells starting with `=`, `+`, `-`, or `@` with `'`).
+  - Choices not in the spec, now written into spec 10: same-day exports replace each other, town and region match ignoring case, ties ordered by name then id, SIC codes joined with a comma and a space, headers-only file when nothing matches.
+  - Tests: `tests/Feature/Sponsors/ExportSponsorsCommandTest.php` (headers, BOM, empty cells, done rows with a website only, other teams never exported, order, default and custom minimum confidence, town, region, confirmed, Scale-up, and combined filters, Scale-up column alone and joined, formula escaping, nothing to export, same-day replace, no team, unknown team, bad minimum confidence) and `tests/Unit/Support/CsvCellTest.php`. `composer ci:check` passes (489 tests).
+  - Live check (2026-10-10, local `johns-llc`, no API calls): the default export wrote 7 sponsors, `--min-confidence=0 --town=sheffield` wrote 8, `--region=Yorkshire --min-confidence=90` wrote 2 (ANSYS UK Ltd and ASK4, both 100), and `--scale-up` wrote 0 (no Scale-up sponsor is `done` yet). The file starts with the BOM.
+  - `architecture-context.md` updated (`SponsorExport` boundary, `CsvCell`).
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 10: Export.
+- Feature 11: Sponsor edit permission.
 
 ## Open Questions
+
+- Excel drops the leading zeros of company numbers (for example `03917515`) when it opens the export CSV. Should the export protect them, and how (for example a `="03917515"` cell, which other tools show literally)?
 
 - Which search provider to use long term if Brave limits are too tight.
 - Where will the app be hosted, if anywhere beyond local Herd?
@@ -192,6 +203,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - A Companies House API error throws `CompaniesHouseRequestFailed` (retried by the job), never returns null, so errors are not mistaken for no-matches.
 - A web search API error throws `WebSearchRequestFailed` the same way. Only an empty or malformed response gives an empty list.
 - Batch jobs are unique per sponsor (`ShouldBeUnique`), so a scheduled run never queues a row that is still waiting.
+- The export writes one file per team per day. A second run on the same day replaces it, and `--min-confidence` applies together with every other filter.
 - Queued jobs fail after 3 real errors (`$maxExceptions` with `retryUntil()`), not 3 tries, so waiting on the rate limiter never fails a row.
 - Database queue, not Redis, to keep setup simple.
 - Keep the Laravel React starter kit as the foundation. The dashboard is a React/Inertia page behind login.
