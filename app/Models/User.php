@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\HasTeams;
+use App\Enums\TeamRole;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -40,6 +41,21 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasTeams, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    /**
+     * Determine if the user may edit the sponsors of the given team.
+     * Owners and admins always can. Members need their membership flag switched on.
+     */
+    public function canEditSponsors(Team $team): bool
+    {
+        $membership = $this->teamMemberships()->where('team_id', $team->id)->first();
+
+        if ($membership === null) {
+            return false;
+        }
+
+        return $membership->role->isAtLeast(TeamRole::Admin) || $membership->can_edit_sponsors;
+    }
 
     /**
      * Get the attributes that should be cast.

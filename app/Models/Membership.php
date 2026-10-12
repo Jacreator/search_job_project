@@ -13,12 +13,13 @@ use Illuminate\Support\Carbon;
  * @property int $team_id
  * @property int $user_id
  * @property TeamRole $role
+ * @property bool $can_edit_sponsors
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Team $team
  * @property-read User $user
  */
-#[Fillable(['team_id', 'user_id', 'role'])]
+#[Fillable(['team_id', 'user_id', 'role', 'can_edit_sponsors'])]
 class Membership extends Pivot
 {
     /**
@@ -64,6 +65,7 @@ class Membership extends Pivot
     {
         return [
             'role' => TeamRole::class,
+            'can_edit_sponsors' => 'boolean',
         ];
     }
 }

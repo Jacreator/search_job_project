@@ -10,6 +10,7 @@ import RemoveMemberModal from '@/components/remove-member-modal';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -26,7 +27,7 @@ import {
 } from '@/components/ui/tooltip';
 import { useInitials } from '@/hooks/use-initials';
 import { edit, index, update } from '@/routes/teams';
-import { update as updateMember } from '@/routes/teams/members';
+import { sponsorAccess, update as updateMember } from '@/routes/teams/members';
 import type {
     RoleOption,
     Team,
@@ -74,6 +75,13 @@ export default function TeamEdit({
     const updateMemberRole = (member: TeamMember, newRole: string) => {
         router.visit(updateMember([team.slug, member.id]), {
             data: { role: newRole },
+            preserveScroll: true,
+        });
+    };
+
+    const updateSponsorAccess = (member: TeamMember, canEdit: boolean) => {
+        router.visit(sponsorAccess([team.slug, member.id]), {
+            data: { can_edit_sponsors: canEdit },
             preserveScroll: true,
         });
     };
@@ -196,6 +204,34 @@ export default function TeamEdit({
                                 </div>
 
                                 <div className="flex items-center gap-2">
+                                    {member.role === 'member' &&
+                                    permissions.canManageSponsorEditors ? (
+                                        <Label className="mr-2 flex items-center gap-2 font-normal">
+                                            <Checkbox
+                                                data-test="member-sponsor-access-checkbox"
+                                                checked={
+                                                    member.can_edit_sponsors
+                                                }
+                                                onCheckedChange={(checked) =>
+                                                    updateSponsorAccess(
+                                                        member,
+                                                        checked === true,
+                                                    )
+                                                }
+                                            />
+                                            Can edit sponsors
+                                        </Label>
+                                    ) : member.role === 'member' ? (
+                                        <span
+                                            data-test="member-sponsor-access-label"
+                                            className="mr-2 text-sm text-muted-foreground"
+                                        >
+                                            {member.can_edit_sponsors
+                                                ? 'Can edit sponsors'
+                                                : 'Cannot edit sponsors'}
+                                        </span>
+                                    ) : null}
+
                                     {member.role !== 'owner' &&
                                     permissions.canUpdateMember ? (
                                         <DropdownMenu>

@@ -68,6 +68,7 @@ class TeamController extends Controller
                     'avatar' => $member->avatar ?? null,
                     'role' => $membership->role->value,
                     'role_label' => $membership->role->label(),
+                    'can_edit_sponsors' => $membership->can_edit_sponsors,
                 ];
             }),
             'invitations' => $team->invitations()
