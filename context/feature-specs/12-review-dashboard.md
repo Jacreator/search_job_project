@@ -30,6 +30,21 @@ Inside the existing `{current_team}` route group (`auth`, `verified`, `EnsureTea
 - Owners and admins see a select (A or B) on editable rows. Everyone else sees the grade as text.
 - Filter: "Rating missing".
 
+## Choices Made When Built
+
+- Routes are named `sponsors.index`, `sponsors.update`, and `sponsors.rating.update`. Controllers are `Sponsors\SponsorController` and `Sponsors\SponsorRatingController`. Queries live in `App\Services\SponsorDashboard`, with the filters in a `SponsorFilters` value object.
+- Query string keys: `status`, `town`, `region`, `min_confidence`, `tech`, `scale_up`, `rating_missing`, `search`, `page`. They are validated by `ListSponsorsRequest`. Town and region match ignoring case, and the name search matches part of the name, ignoring case.
+- Default order: highest confidence first (rows with no confidence last), then priority, then name. So reviewable rows come first.
+- The summary counts are for the whole team and do not change with the filters.
+- The region filter lists the regions the team has sponsors in.
+- The website and confirmed flag can be edited only on `done` rows. The lookup would overwrite a website saved on a row it has not finished. Other rows fail validation.
+- A website cannot be cleared here, only replaced. Confirming needs a website. Confirming alone does not change the confidence.
+- The update request takes `website` or `confirmed`. When `website` is sent, confirmed is always set to true.
+- Requests come back to the page they were sent from, so filters and the page number are kept.
+- Setting a grade shows what happened: "Rating set to B. The sponsor is now skipped." or "Rating set to A. The sponsor is pending again."
+- `SponsorPolicy::setRatings(User, Team)` says whether the user may set grades at all (owner or admin), for showing the select.
+- The table is a plain HTML table styled with Tailwind, so no new shadcn primitive was added. There is no actions column: the website is edited from its own cell, and "Confirmed" is a column.
+
 ## Added By Later Specs
 
 These are not part of this spec. Each later spec extends the dashboard when it is built:
