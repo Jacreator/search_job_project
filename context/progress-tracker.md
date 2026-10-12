@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 10 complete. Feature 11 not started.
+- Feature 11 complete. Feature 12 not started.
 
 ## Current Goal
 
-- Feature 11: Sponsor edit permission
+- Feature 12: Review dashboard
 
 ## Completed
 
@@ -170,13 +170,22 @@ Update this file whenever the current phase, active feature, or implementation s
   - Live check (2026-10-10, local `johns-llc`, no API calls): the default export wrote 7 sponsors, `--min-confidence=0 --town=sheffield` wrote 8, `--region=Yorkshire --min-confidence=90` wrote 2 (ANSYS UK Ltd and ASK4, both 100), and `--scale-up` wrote 0 (no Scale-up sponsor is `done` yet). The file starts with the BOM.
   - `architecture-context.md` updated (`SponsorExport` boundary, `CsvCell`).
 
+- Feature 11: Sponsor edit permission (2026-10-12):
+  - Migration `2026_10_12_000001_add_can_edit_sponsors_to_team_members_table` (`can_edit_sponsors`, boolean, default false). Runs, rolls back, and re-runs on local MySQL.
+  - `TeamPermission::ManageSponsorEditors` (`sponsor:manage-editors`), granted to Owner and Admin. `Membership` gains the fillable column, cast, and docblock. `User::canEditSponsors(Team)`: owner or admin, else the membership flag, false for a non-member.
+  - `PATCH settings/teams/{team}/members/{user}/sponsor-access` (`teams.members.sponsor-access`), `App\Http\Controllers\Teams\MemberSponsorAccessController`, `App\Http\Requests\Teams\UpdateMemberSponsorAccessRequest` (authorises with the permission, validates a boolean, rejects an owner or admin target, 404 for a target outside the team).
+  - Starter kit hook-ups, all asked for or needed by spec 11: `Team::members()` loads the pivot flag, `TeamController::edit` sends `can_edit_sponsors` per member, `TeamPermissions` and `HasTeams::toTeamPermissions()` gain `canManageSponsorEditors`, and `resources/js/pages/teams/edit.tsx` shows a "Can edit sponsors" checkbox next to each Member (plain text for users without the permission). Types in `resources/js/types/teams.ts`.
+  - Tests: `tests/Feature/Teams/MemberSponsorAccessTest.php` (migration up and down, permission per role, owner and admin toggle on and off, member 403, owner and admin targets rejected, other team 403, target outside the team 404, non-boolean values, guest, team edit page props per role) and `tests/Feature/Sponsors/SponsorEditPermissionTest.php` (owner, admin, member on, member off, non-member, per team). `composer ci:check` passes (514 tests).
+  - Role changes (approved by James, 2026-10-12): `TeamMemberController::update` switches the flag off when the new role is not Member. Tests for promote then demote, and for a member staying a member.
+  - Not checked in a browser: the checkbox on the team edit page is covered by type checks, the build, and the page props test only.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 11: Sponsor edit permission.
+- Feature 12: Review dashboard.
 
 ## Open Questions
 
@@ -203,6 +212,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - A Companies House API error throws `CompaniesHouseRequestFailed` (retried by the job), never returns null, so errors are not mistaken for no-matches.
 - A web search API error throws `WebSearchRequestFailed` the same way. Only an empty or malformed response gives an empty list.
 - Batch jobs are unique per sponsor (`ShouldBeUnique`), so a scheduled run never queues a row that is still waiting.
+- Changing a member's role to admin switches `can_edit_sponsors` off, so a later demotion never brings editing back by itself.
 - The export writes one file per team per day. A second run on the same day replaces it, and `--min-confidence` applies together with every other filter.
 - Queued jobs fail after 3 real errors (`$maxExceptions` with `retryUntil()`), not 3 tries, so waiting on the rate limiter never fails a row.
 - Database queue, not Redis, to keep setup simple.

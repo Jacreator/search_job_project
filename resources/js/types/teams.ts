@@ -17,6 +17,7 @@ export type TeamMember = {
     avatar?: string | null;
     role: TeamRole;
     role_label: string;
+    can_edit_sponsors: boolean;
 };
 
 export type TeamInvitation = {
@@ -49,6 +50,7 @@ export type TeamPermissions = {
     canRemoveMember: boolean;
     canCreateInvitation: boolean;
     canCancelInvitation: boolean;
+    canManageSponsorEditors: boolean;
 };
 
 export type RoleOption = {

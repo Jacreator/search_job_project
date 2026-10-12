@@ -22,10 +22,18 @@ class TeamMemberController extends Controller
 
         $newRole = TeamRole::from($request->validated('role'));
 
-        $team->memberships()
+        $membership = $team->memberships()
             ->where('user_id', $user->id)
-            ->firstOrFail()
-            ->update(['role' => $newRole]);
+            ->firstOrFail();
+
+        $membership->role = $newRole;
+
+        // Only members need the sponsor editing flag, so it never outlives a promotion.
+        if ($newRole !== TeamRole::Member) {
+            $membership->can_edit_sponsors = false;
+        }
+
+        $membership->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Member role updated.')]);
 

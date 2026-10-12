@@ -27,6 +27,15 @@ Decide who may edit sponsors in a team. Data model, permission, and the toggle o
 - The target must be a Member of the team. Owners and admins are not toggled (they always can edit).
 - UI: on `resources/js/pages/teams/edit.tsx`, show a switch or checkbox "Can edit sponsors" next to each Member, visible only to users with the permission. Read-only label for everyone else.
 
+## Choices Made When Built
+
+- The route is named `teams.members.sponsor-access` and handled by `App\Http\Controllers\Teams\MemberSponsorAccessController` with `UpdateMemberSponsorAccessRequest`.
+- The UI uses the existing `Checkbox` (no new shadcn primitive). Users without the permission see "Can edit sponsors" or "Cannot edit sponsors" as plain text. Nothing is shown next to owners and admins.
+- Toggling an owner or admin fails validation on `can_edit_sponsors` ("Owners and admins can always edit sponsors."). A target who is not in the team gives 404.
+- `canManageSponsorEditors` is added to the `TeamPermissions` data object, and `can_edit_sponsors` to each member on the team edit page.
+- Changing a member's role to one that does not need the flag (admin) switches the flag off, in the starter kit's `TeamMemberController::update` (approved by James). A member promoted to admin and later demoted starts with editing off.
+- The `canEditSponsors()` tests need the database, so they live in `tests/Feature/Sponsors/SponsorEditPermissionTest.php`.
+
 ## Check When Done
 
 - Migration runs and rolls back.
