@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 11 complete. Feature 12 not started.
+- Feature 12 complete. Feature 13 not started.
 
 ## Current Goal
 
-- Feature 12: Review dashboard
+- Feature 13: Shared lookups
 
 ## Completed
 
@@ -179,16 +179,28 @@ Update this file whenever the current phase, active feature, or implementation s
   - Role changes (approved by James, 2026-10-12): `TeamMemberController::update` switches the flag off when the new role is not Member. Tests for promote then demote, and for a member staying a member.
   - Not checked in a browser: the checkbox on the team edit page is covered by type checks, the build, and the page props test only.
 
+- Feature 12: Review dashboard (2026-10-12):
+  - Routes in the `{current_team}` group with scoped bindings: `GET sponsors` (`sponsors.index`), `PATCH sponsors/{sponsor}` (`sponsors.update`), `PATCH sponsors/{sponsor}/rating` (`sponsors.rating.update`). A sponsor of another team gives 404 through the user's own team and 403 through the other team.
+  - `App\Services\SponsorDashboard`: one page of 50 (`SponsorFilters`: status, town, region, minimum confidence, tech, Scale-up, rating missing, name search), ordered by confidence desc, priority desc, name; counts per status and per skip reason for the whole team; the team's regions.
+  - `App\Policies\SponsorPolicy` (`update`, `setRatings`, `setRating`). Form Requests `ListSponsorsRequest`, `UpdateSponsorRequest`, `SetSponsorRatingRequest`. Controllers `Sponsors\SponsorController` and `Sponsors\SponsorRatingController`.
+  - Update: a website saved by hand (http or https, 255 max) sets confidence 100 and confirmed. `confirmed` alone toggles the flag. Only `done` rows can be edited, a website cannot be cleared, and confirming needs a website.
+  - Rating: owner or admin, missing or hand-set grade only. Sets `rating_grade_manual` and goes through `RatingChange`, so B skips the row with `BRating` and A returns a `BRating` row to `pending`.
+  - Page `resources/js/pages/sponsors/index.tsx` with parts in `resources/js/components/sponsors` (summary cards and skip counts, filter form, table rows with the Scale-up badge, inline website edit, confirmed checkbox, rating select), types in `resources/js/types/sponsors.ts`, and a "Sponsors" item in the sidebar. Plain HTML table, no new shadcn primitive.
+  - Tests: `tests/Feature/Sponsors/SponsorDashboardTest.php` (57): guests, listing and row shape, team scoping, order, pagination with filters kept, every filter and a combination, invalid filters, status and skip counts, permissions per role, website and confirmed updates per role, validation, non-done rows, another team's sponsor, and every rating case in spec 12. `composer ci:check` passes (571 tests).
+  - Real data (local `johns-llc`, 122,938 sponsors): the first page takes about 245 ms and the summary about 140 ms. The first rows are ANSYS UK Ltd, ASK4, and AEGIQ LTD.
+  - Not checked in a browser: the page is covered by type checks, lint, the build, and the page props tests only.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 12: Review dashboard.
+- Feature 13: Shared lookups.
 
 ## Open Questions
 
+- Should the dashboard let an editor clear a wrong website (not only replace it), and edit rows that are not `done` (for example a row skipped as not tech)? Both are refused for now.
 - Excel drops the leading zeros of company numbers (for example `03917515`) when it opens the export CSV. Should the export protect them, and how (for example a `="03917515"` cell, which other tools show literally)?
 
 - Which search provider to use long term if Brave limits are too tight.
@@ -212,6 +224,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - A Companies House API error throws `CompaniesHouseRequestFailed` (retried by the job), never returns null, so errors are not mistaken for no-matches.
 - A web search API error throws `WebSearchRequestFailed` the same way. Only an empty or malformed response gives an empty list.
 - Batch jobs are unique per sponsor (`ShouldBeUnique`), so a scheduled run never queues a row that is still waiting.
+- The dashboard edits the website and confirmed flag only on `done` rows, so the lookup never overwrites a hand-saved website.
 - Changing a member's role to admin switches `can_edit_sponsors` off, so a later demotion never brings editing back by itself.
 - The export writes one file per team per day. A second run on the same day replaces it, and `--min-confidence` applies together with every other filter.
 - Queued jobs fail after 3 real errors (`$maxExceptions` with `retryUntil()`), not 3 tries, so waiting on the rate limiter never fails a row.

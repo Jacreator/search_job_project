@@ -36,7 +36,9 @@
 - `app/Support` - small pure helpers: `CompanyName` (normalisation), `EmployerClassifier`, `SearchQuery` (web search query from name and town), `TermMatcher` (shared whole-word matching), `AiDetector`, `SponsorRating`, `PriorityLocations`, `CareersSignals`, `CsvCell` (formula escaping for exported cells).
 - `app/Enums` - `SponsorStatus`, `TechReason`, `SkipReason`, `VisaSponsorship`.
 - `app/Http/Controllers/Sponsors` + `app/Http/Requests/Sponsors` - review dashboard only.
-- `resources/js/pages/sponsors` - review dashboard pages.
+- `app/Services/SponsorDashboard` - the dashboard's reads: one filtered page of a team's sponsors (`SponsorFilters`), counts per status and skip reason, and the team's regions. Database only.
+- `app/Policies/SponsorPolicy` - who may update a sponsor (`update`) and set a rating grade (`setRatings`, `setRating`).
+- `resources/js/pages/sponsors` - review dashboard pages. Their parts live in `resources/js/components/sponsors`.
 - `routes/web.php` - dashboard routes, inside the existing `{current_team}` group.
 - `routes/console.php` - schedule definitions.
 - Starter kit areas (`app/Actions`, `app/Concerns`, `Fortify`, `Teams`, `Settings`, `resources/js/components`, `resources/js/layouts`) - foundation code. Do not change unless a spec says so.
