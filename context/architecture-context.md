@@ -32,7 +32,8 @@
 - `app/Services/RatingChange` - applies the status rules for a rating change. Used by import and the dashboard.
 - `app/Services/RegisterDownload` - finds the latest register CSV through the GOV.UK content API and saves it to `storage/app/imports`. All GOV.UK HTTP calls.
 - `app/Services/RegisterImport` - reads the register CSV row by row and upserts one team's sponsors in chunks. Returns an `ImportSummary`.
-- `app/Support` - small pure helpers: `CompanyName` (normalisation), `EmployerClassifier`, `SearchQuery` (web search query from name and town), `TermMatcher` (shared whole-word matching), `AiDetector`, `SponsorRating`, `PriorityLocations`, `CareersSignals`.
+- `app/Services/SponsorExport` - streams one team's done rows with a website to a CSV in `storage/app/exports`, filtered by an `ExportFilters` value object. Database and file only.
+- `app/Support` - small pure helpers: `CompanyName` (normalisation), `EmployerClassifier`, `SearchQuery` (web search query from name and town), `TermMatcher` (shared whole-word matching), `AiDetector`, `SponsorRating`, `PriorityLocations`, `CareersSignals`, `CsvCell` (formula escaping for exported cells).
 - `app/Enums` - `SponsorStatus`, `TechReason`, `SkipReason`, `VisaSponsorship`.
 - `app/Http/Controllers/Sponsors` + `app/Http/Requests/Sponsors` - review dashboard only.
 - `resources/js/pages/sponsors` - review dashboard pages.

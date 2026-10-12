@@ -17,6 +17,17 @@
 - Add a UTF-8 BOM so Excel opens it cleanly.
 - Escape cells starting with `=`, `+`, `-`, or `@` (see `security-context.md`).
 
+## Choices Made When Built
+
+- `{date}` is today's date as `YYYY-MM-DD`. A second export for the same team on the same day replaces the first. The file is written as `.part` and renamed, so a failed export leaves no partial file.
+- `--min-confidence` must be a whole number from 0 to 100. It applies together with every other filter, including `--confirmed`.
+- `--town` and `--region` match ignoring case, like `sponsors:enrich`.
+- Rows with the same confidence are ordered by name, then id.
+- SIC codes are joined with a comma and a space in one cell. Confirmed is Yes / No. Missing values are empty cells.
+- When nothing matches, the file is still written with the headers only, and the command reports 0 sponsors.
+- The command fails on a missing `--team`, an unknown team, or a bad `--min-confidence`.
+- `App\Services\SponsorExport` writes the file, `App\Services\ExportFilters` carries the options, and `App\Support\CsvCell::safe()` does the formula escaping.
+
 ## Added By Later Specs
 
 These are not part of this spec. Each later spec extends the export when it is built:
