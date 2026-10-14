@@ -35,6 +35,9 @@ export default function SponsorFilters({ teamSlug, filters, regions }: Props) {
     const [tech, setTech] = useState(filters.tech);
     const [scaleUp, setScaleUp] = useState(filters.scale_up);
     const [ratingMissing, setRatingMissing] = useState(filters.rating_missing);
+    const [needsSecondCheck, setNeedsSecondCheck] = useState(
+        filters.needs_second_check,
+    );
 
     // A region from the query string that the team no longer has stays selectable.
     const regionOptions =
@@ -78,6 +81,10 @@ export default function SponsorFilters({ teamSlug, filters, regions }: Props) {
 
         if (ratingMissing) {
             query.rating_missing = '1';
+        }
+
+        if (needsSecondCheck) {
+            query.needs_second_check = '1';
         }
 
         router.get(index.url(teamSlug), query, { preserveScroll: true });
@@ -194,6 +201,15 @@ export default function SponsorFilters({ teamSlug, filters, regions }: Props) {
                             }
                         />
                         Rating missing
+                    </Label>
+                    <Label className="flex items-center gap-2 font-normal">
+                        <Checkbox
+                            checked={needsSecondCheck}
+                            onCheckedChange={(checked) =>
+                                setNeedsSecondCheck(checked === true)
+                            }
+                        />
+                        Needs second check
                     </Label>
                 </div>
 

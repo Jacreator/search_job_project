@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property string $slug
  * @property bool $is_personal
+ * @property bool $share_lookups
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -27,7 +28,7 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, User> $members
  * @property-read Collection<int, Sponsor> $sponsors
  */
-#[Fillable(['name', 'slug', 'is_personal'])]
+#[Fillable(['name', 'slug', 'is_personal', 'share_lookups'])]
 class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
@@ -115,6 +116,7 @@ class Team extends Model
     {
         return [
             'is_personal' => 'boolean',
+            'share_lookups' => 'boolean',
         ];
     }
 

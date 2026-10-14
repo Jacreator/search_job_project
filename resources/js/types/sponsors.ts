@@ -20,6 +20,7 @@ export type Sponsor = {
     website: string | null;
     confidence: number | null;
     confirmed: boolean;
+    needs_second_check: boolean;
     status: SponsorStatus;
     skip_reason: SkipReason | null;
     is_scale_up: boolean;
@@ -33,6 +34,7 @@ export type SponsorFilters = {
     tech: boolean;
     scale_up: boolean;
     rating_missing: boolean;
+    needs_second_check: boolean;
     search: string | null;
 };
 

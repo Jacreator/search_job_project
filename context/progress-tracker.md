@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 12 complete. Feature 13 not started.
+- Feature 13 complete. Feature 14 not started.
 
 ## Current Goal
 
-- Feature 13: Shared lookups
+- Feature 14: AI tagging
 
 ## Completed
 
@@ -190,13 +190,23 @@ Update this file whenever the current phase, active feature, or implementation s
   - Real data (local `johns-llc`, 122,938 sponsors): the first page takes about 245 ms and the summary about 140 ms. The first rows are ANSYS UK Ltd, ASK4, and AEGIQ LTD.
   - Not checked in a browser: the page is covered by type checks, lint, the build, and the page props tests only.
 
+- Feature 13: Shared lookups (2026-10-14):
+  - Migrations `2026_10_14_000001_add_share_lookups_to_teams_table` (`share_lookups`, boolean, default false) and `2026_10_14_000002_add_needs_second_check_to_sponsors_table` (`needs_second_check`, boolean, default false, indexed). Both run, roll back, and re-run on local MySQL. Casts, fillable, and docblocks on `Team` and `Sponsor`.
+  - `PATCH settings/teams/{team}/lookup-sharing` (`teams.lookup-sharing`) in the `EnsureTeamMembership` group, `App\Http\Controllers\Teams\LookupSharingController`, `App\Http\Requests\Teams\UpdateLookupSharingRequest` (authorises with `TeamPolicy::update`, validates a boolean). `TeamController::edit` sends `team.shareLookups`. The team edit page has a "Lookup sharing" section: a checkbox for owners and admins, read-only text for members. A checkbox, not the spec's switch, because there is no switch component without a new npm dependency (spec 13 updated).
+  - `App\Services\SharedLookup::find()`: null when the sponsor's team does not share or the name normalises to nothing. Otherwise other sharing teams (not soft-deleted), `done` or `skipped`, never `BRating`, same town ignoring case, ordered confirmed, confidence, updated_at, id; matched on the stored `normalised_name` (see below).
+  - `EnrichSponsor`: after incrementing `attempts`, for `pending` and `ch_done` rows, a match copies company number and status, SIC codes, tech flag and reason, skip reason, website, confidence, and status, and clears `error`. Never `confirmed`, `region`, `priority`, or the rating. A confirmed source gives confidence `min(confidence, 74)` (`EnrichSponsor::SHARED_CONFIRMED_CONFIDENCE`) and `needs_second_check` true; an unconfirmed one keeps its confidence and the flag false.
+  - Second check: confirming or saving a website in the dashboard clears the flag (unconfirming leaves it). Dashboard row field, purple "Needs second check" badge next to the status, and a "Needs second check" filter. Export gains a "Needs second check" column (Yes / No). `sponsors:status` prints a "Needs second check" count table.
+  - Tests: `tests/Feature/Sponsors/SharedLookupTest.php` (40): migrations, toggle per role, member and other-team 403, guest, invalid values, page prop; copy with no HTTP, skipped copy with reasons, either or both teams off runs the pipeline, fields never copied, confirmed cap and flag, unconfirmed source, `BRating` and pending, ch_done, failed sources never used, ch_done target, running twice, same team and deleted team never used, name and town matching, source order; flag cleared by confirm and website, kept by unconfirm, dashboard badge data and filter, export column, status count. Existing export and dashboard tests updated for the new column and props. `composer ci:check` passes (611 tests).
+  - Not checked in a browser, and not run live: only one local team has data, so no real copy has happened yet.
+  - Stored normalised name (2026-10-14, approved by James): migration `2026_10_14_000003_add_normalised_name_to_sponsors_table` (`normalised_name`, string, default `''`, indexed) fills existing rows (14 s for 122,938 local rows; 2 empty, the two "T/A" names). `Sponsor` sets it on every save, `RegisterImport` on insert. `SharedLookup` now queries the indexed column instead of scanning the town in PHP, then checks the exact name in PHP (the MySQL collation ignores accents). Local MySQL uses the index (London lookup 0.4 ms). Runs, rolls back, and re-runs. Tests: migration fill and rollback, model create and rename, lookup uses the column, import stores it. `composer ci:check` passes (615 tests).
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 13: Shared lookups.
+- Feature 14: AI tagging.
 
 ## Open Questions
 
@@ -233,6 +243,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Sponsor data is scoped per team (`team_id` on `sponsors`). API keys and the rate limiters are shared.
 - Import, enrich, status, and export stay Artisan commands. Commands take `--team=` (slug).
 - Sponsor editing: owners and admins always; members only when an owner or admin turns on their `can_edit_sponsors` flag (default off). New `TeamPermission::ManageSponsorEditors` for owner and admin.
+- Shared lookups match on the stored, indexed `sponsors.normalised_name`, kept in step by the model and import. A change to the `CompanyName` rules needs the column refilled.
 - Lookups are shared between teams only when both teams have `share_lookups` on (default off, owners and admins toggle). `confirmed`, `region`, `priority`, `rating_grade`, and `rating_grade_manual` are never shared, and `BRating` rows are never a source. A copy of another team's hand-confirmed website is capped at confidence 74 and flagged `needs_second_check` until this team confirms it.
 - The agent never commits, pushes, or runs any git write command. It may run only `git status`, `git diff`, and `git log`. James does all git writes. Enforced by `.claude/settings.json`.
 - Local `APP_URL` is the Herd URL `http://search_job.test`.
@@ -248,6 +259,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Session Notes
 
+- Second-pass backlog: `context/status-summary.md`. Finish features 13 to 15 first, and log deferred fixes and additions there instead of fixing them on the spot (James, 2026-10-14).
 - Register CSV source: GOV.UK "Register of licensed sponsors: workers".
 - Columns: Organisation Name, Town/City, County, Type & Rating, Route.
 - `composer dev` runs the server, queue listener, logs, and Vite. The scheduler needs `php artisan schedule:work` separately.
