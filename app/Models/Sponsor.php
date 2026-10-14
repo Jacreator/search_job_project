@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\AiSource;
 use App\Enums\SkipReason;
 use App\Enums\SponsorStatus;
 use App\Enums\TechReason;
@@ -35,6 +36,8 @@ use Illuminate\Support\Carbon;
  * @property array<int, string>|null $sic_codes
  * @property bool|null $is_tech
  * @property TechReason|null $tech_reason
+ * @property bool $is_ai
+ * @property AiSource|null $ai_source
  * @property string|null $website
  * @property int|null $confidence
  * @property bool $confirmed
@@ -64,6 +67,8 @@ use Illuminate\Support\Carbon;
     'sic_codes',
     'is_tech',
     'tech_reason',
+    'is_ai',
+    'ai_source',
     'website',
     'confidence',
     'confirmed',
@@ -99,6 +104,7 @@ class Sponsor extends Model
         'attempts' => 0,
         'confirmed' => false,
         'needs_second_check' => false,
+        'is_ai' => false,
         'rating_grade_manual' => false,
     ];
 
@@ -180,6 +186,8 @@ class Sponsor extends Model
             'is_tech' => 'boolean',
             'rating_grade_manual' => 'boolean',
             'tech_reason' => TechReason::class,
+            'is_ai' => 'boolean',
+            'ai_source' => AiSource::class,
             'confirmed' => 'boolean',
             'needs_second_check' => 'boolean',
             'status' => SponsorStatus::class,

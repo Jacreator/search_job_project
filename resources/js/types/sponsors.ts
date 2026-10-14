@@ -24,6 +24,7 @@ export type Sponsor = {
     status: SponsorStatus;
     skip_reason: SkipReason | null;
     is_scale_up: boolean;
+    is_ai: boolean;
 };
 
 export type SponsorFilters = {
@@ -35,6 +36,7 @@ export type SponsorFilters = {
     scale_up: boolean;
     rating_missing: boolean;
     needs_second_check: boolean;
+    ai: boolean;
     search: string | null;
 };
 

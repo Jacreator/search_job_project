@@ -36,6 +36,7 @@ class SponsorController extends Controller
                 'scale_up' => $filters->scaleUp,
                 'rating_missing' => $filters->ratingMissing,
                 'needs_second_check' => $filters->needsSecondCheck,
+                'ai' => $filters->ai,
                 'search' => $filters->search,
             ],
             'statusCounts' => $dashboard->statusCounts($currentTeam),

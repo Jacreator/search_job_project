@@ -4,8 +4,8 @@ The plan is to finish features 13 to 15 first, then do a second pass that handle
 
 ## Where Things Stand (2026-10-14)
 
-- Done: features 01 to 13 (setup, sponsors table, CSV import, Companies House, employer classification, web search, website scoring, enrich job, batch and schedule, export, sponsor edit permission, review dashboard, shared lookups).
-- Next: 14 AI tagging, 15 Careers page and hiring signals.
+- Done: features 01 to 14 (setup, sponsors table, CSV import, Companies House, employer classification, web search, website scoring, enrich job, batch and schedule, export, sponsor edit permission, review dashboard, shared lookups, AI tagging).
+- Next: 15 Careers page and hiring signals.
 
 ## Open Questions
 
@@ -24,6 +24,7 @@ Decide these before the second pass starts.
 - [ ] Review dashboard `/sponsors` (Feature 12): filters, pagination, inline website edit, the confirmed checkbox, the rating select, and the permissions for each role. So far it is covered only by type checks, lint, the build and the page props tests.
 - [ ] Team edit page: the "Share lookups with other teams" checkbox and the read-only text for members (Feature 13).
 - [ ] Dashboard: the "Needs second check" badge and filter (Feature 13).
+- [ ] Dashboard: the "AI" badge and "AI only" filter (Feature 14).
 
 ### Matching gaps
 
@@ -37,6 +38,12 @@ Decide these before the second pass starts.
 - [ ] If the `CompanyName` rules change (for example the "t.a" fix above), refill `sponsors.normalised_name` for every row. Shared lookups match on that stored column. A small command for it would make this a one-liner.
 - [ ] The spec asks for a switch for lookup sharing. It is a checkbox, because a switch needs a new npm dependency (`@radix-ui/react-switch`). Decide whether to add it.
 
+### AI tagging (Feature 14)
+
+- [ ] False positives from "Ai" as a person's name or initials: "Ai Beauty LTD", "AI & CO LTD TA Flying Horse Restaurant" and others among the 299 register names tagged from the name. Options: only tag from the name when the row is also tech, or add AI noise words. Decide on a rule.
+- [ ] Rows looked up before Feature 14 (about 60 local rows) have no AI tag. The name check can be re-run with no API calls; the homepage check needs the page fetched again.
+- [ ] Live run to see homepage tagging on real sites.
+
 ### Revisit if things change
 
 - [ ] Priority locations are one global config list. Make them per team only if a team outside Yorkshire uses the app.
@@ -47,5 +54,5 @@ Decide these before the second pass starts.
 
 ### Before calling the project done
 
-- [ ] Run `composer ci:check` in full and record the test count. The last count is 611, from Feature 13.
+- [ ] Run `composer ci:check` in full and record the test count. The last count is 680, from Feature 14.
 - [ ] Do a full live run on one region with real keys, from import to enrich to export, and check the results by hand.

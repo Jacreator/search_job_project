@@ -9,7 +9,7 @@ Tag sponsors that look like AI companies, so AI Engineer roles are easy to find.
 - `is_ai` (boolean, default false, indexed)
 - `ai_source` (string, nullable: `name` or `homepage`)
 
-Add casts and fillable entries on `Sponsor`.
+Add casts and fillable entries on `Sponsor`. `ai_source` is cast to `App\Enums\AiSource` (`Name`, `Homepage`), because fixed value sets use enums (`code-standards.md`).
 
 ## Config
 
@@ -48,11 +48,13 @@ Both use `TermMatcher` with `ai_keywords`. No database or HTTP.
 - After classification (spec 08 step 1): if `AiDetector::fromName` is true, set `is_ai` true and `ai_source` to `name`.
 - After verification (spec 08 step 4): if `is_ai` is still false and `AiDetector::fromText` is true on the `VerifiedPage` text (spec 07), set `is_ai` true and `ai_source` to `homepage`.
 - Reuse the text the verifier already fetched. No extra HTTP call.
+- The name check runs on every row that gets a Companies House match, so a row later skipped (for example not tech or inactive) can still be tagged from its name. The homepage check only runs when a website was found.
+- Rows looked up before this spec are not tagged. Re-tagging them is in the second-pass backlog (`context/status-summary.md`).
 
 ## Dashboard And Export
 
-- Dashboard (spec 12): AI badge (see `ui-context.md`) and an "AI only" filter.
-- Export (spec 10): "AI" column (Yes / No).
+- Dashboard (spec 12): AI badge (see `ui-context.md`) and an "AI only" filter (query key `ai`).
+- Export (spec 10): "AI" column (Yes / No), after "Scale-up" and before "Needs second check".
 - Shared lookups (spec 13): copy `is_ai` and `ai_source`.
 
 ## Check When Done

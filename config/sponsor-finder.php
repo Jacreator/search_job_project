@@ -175,6 +175,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | AI Tagging
+    |--------------------------------------------------------------------------
+    |
+    | Matched as whole words or phrases, with an optional plural "s", and
+    | hyphens treated as spaces (see App\Support\TermMatcher).
+    |
+    */
+
+    'ai_keywords' => [
+        'ai', 'artificial intelligence', 'machine learning', 'ml',
+        'deep learning', 'llm', 'large language model', 'genai', 'generative',
+        'computer vision', 'nlp', 'data science', 'robotics', 'mlops',
+        'ai-powered',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Priority Locations
     |--------------------------------------------------------------------------
     |

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Contracts\WebSearch;
+use App\Enums\AiSource;
 use App\Enums\SkipReason;
 use App\Enums\SponsorStatus;
 use App\Models\Sponsor;
@@ -12,6 +13,7 @@ use App\Services\CompaniesHouse;
 use App\Services\SharedLookup;
 use App\Services\WebsiteScorer;
 use App\Services\WebsiteVerifier;
+use App\Support\AiDetector;
 use App\Support\EmployerClassifier;
 use App\Support\SearchQuery;
 use Carbon\CarbonInterface;
@@ -82,6 +84,7 @@ final class EnrichSponsor implements ShouldBeUnique, ShouldQueue
         WebsiteScorer $scorer,
         WebsiteVerifier $verifier,
         SharedLookup $sharedLookup,
+        AiDetector $aiDetector,
     ): void {
         $sponsor = $this->sponsor;
 
@@ -110,6 +113,7 @@ final class EnrichSponsor implements ShouldBeUnique, ShouldQueue
 
             $profile = $companiesHouse->profile($match->number);
             $techReason = $classifier->classify($sponsor->name, $profile->sicCodes);
+            $aiFromName = $aiDetector->fromName($sponsor->name);
 
             $sponsor->update([
                 'company_number' => $profile->number,
@@ -117,6 +121,7 @@ final class EnrichSponsor implements ShouldBeUnique, ShouldQueue
                 'sic_codes' => $profile->sicCodes,
                 'tech_reason' => $techReason,
                 'is_tech' => $techReason !== null,
+                ...($aiFromName ? ['is_ai' => true, 'ai_source' => AiSource::Name] : []),
                 'status' => SponsorStatus::ChDone,
             ]);
         }
@@ -136,11 +141,15 @@ final class EnrichSponsor implements ShouldBeUnique, ShouldQueue
         // Search credits are only spent here, on active tech sponsors.
         $candidate = $scorer->best($sponsor->name, $search->search(SearchQuery::for($sponsor->name, $sponsor->town)));
 
+        $page = $candidate === null ? null : $verifier->verify($candidate->url, $sponsor->name);
+
+        // The homepage text is already fetched, so the AI check costs no extra request.
+        $aiFromHomepage = $page !== null && ! $sponsor->is_ai && $aiDetector->fromText($page->text);
+
         $sponsor->update([
             'website' => $candidate?->url,
-            'confidence' => $candidate === null
-                ? null
-                : $scorer->confidence($candidate, $verifier->verify($candidate->url, $sponsor->name)),
+            'confidence' => $candidate === null || $page === null ? null : $scorer->confidence($candidate, $page),
+            ...($aiFromHomepage ? ['is_ai' => true, 'ai_source' => AiSource::Homepage] : []),
             'status' => SponsorStatus::Done,
             'skip_reason' => null,
             'error' => null,
@@ -172,6 +181,8 @@ final class EnrichSponsor implements ShouldBeUnique, ShouldQueue
             'sic_codes' => $source->sic_codes,
             'is_tech' => $source->is_tech,
             'tech_reason' => $source->tech_reason,
+            'is_ai' => $source->is_ai,
+            'ai_source' => $source->ai_source,
             'skip_reason' => $source->skip_reason,
             'website' => $source->website,
             'confidence' => $confidence,

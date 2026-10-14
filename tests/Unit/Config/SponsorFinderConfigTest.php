@@ -77,6 +77,15 @@ it('has tech and noise keywords', function () {
         ->and(config('sponsor-finder.noise_keywords'))->toContain('care', 'recruitment', 'property');
 });
 
+it('has the spec 14 AI keywords', function () {
+    expect(config('sponsor-finder.ai_keywords'))->toBe([
+        'ai', 'artificial intelligence', 'machine learning', 'ml',
+        'deep learning', 'llm', 'large language model', 'genai', 'generative',
+        'computer vision', 'nlp', 'data science', 'robotics', 'mlops',
+        'ai-powered',
+    ]);
+});
+
 it('has a starter list of known employers', function () {
     expect(config('sponsor-finder.known_employers'))
         ->toHaveCount(30)
