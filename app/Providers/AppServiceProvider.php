@@ -39,6 +39,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('external-apis', fn (): Limit => Limit::perMinute(
             (int) config('sponsor-finder.rate_per_minute'),
         ));
+
+        RateLimiter::for('careers-pages', fn (): Limit => Limit::perMinute(
+            (int) config('sponsor-finder.careers_rate_per_minute'),
+        ));
     }
 
     /**

@@ -29,6 +29,8 @@ class ListSponsorsRequest extends FormRequest
             'rating_missing' => ['nullable', 'boolean'],
             'needs_second_check' => ['nullable', 'boolean'],
             'ai' => ['nullable', 'boolean'],
+            'developer_roles' => ['nullable', 'boolean'],
+            'visa_sponsorship' => ['nullable', Rule::in(SponsorFilters::VISA_SPONSORSHIP_VALUES)],
             'search' => ['nullable', 'string', 'max:255'],
             'page' => ['nullable', 'integer', 'min:1'],
         ];
@@ -51,6 +53,8 @@ class ListSponsorsRequest extends FormRequest
             ratingMissing: $this->boolean('rating_missing'),
             needsSecondCheck: $this->boolean('needs_second_check'),
             ai: $this->boolean('ai'),
+            developerRoles: $this->boolean('developer_roles'),
+            visaSponsorship: $this->text('visa_sponsorship'),
             search: $this->text('search'),
         );
     }

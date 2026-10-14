@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Enums\SkipReason;
 use App\Enums\SponsorStatus;
+use App\Enums\VisaSponsorship;
 use App\Models\Sponsor;
 use App\Models\Team;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -13,7 +14,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 /**
  * Reads one team's sponsors for the review dashboard. Database only.
  *
- * @phpstan-type Row array{id: int, name: string, town: string|null, region: string|null, rating_grade: string|null, rating_grade_manual: bool, sic_codes: array<int, string>, website: string|null, confidence: int|null, confirmed: bool, needs_second_check: bool, status: string, skip_reason: string|null, is_scale_up: bool, is_ai: bool}
+ * @phpstan-type Row array{id: int, name: string, town: string|null, region: string|null, rating_grade: string|null, rating_grade_manual: bool, sic_codes: array<int, string>, website: string|null, confidence: int|null, confirmed: bool, needs_second_check: bool, status: string, skip_reason: string|null, is_scale_up: bool, is_ai: bool, careers_url: string|null, mentions_developer_roles: bool|null, visa_sponsorship: string|null}
  */
 final class SponsorDashboard
 {
@@ -60,6 +61,18 @@ final class SponsorDashboard
             $query->where('is_ai', true);
         }
 
+        if ($filters->developerRoles) {
+            $query->where('mentions_developer_roles', true);
+        }
+
+        match ($filters->visaSponsorship) {
+            'offered' => $query->where('visa_sponsorship', VisaSponsorship::Offered),
+            'not_offered' => $query->where('visa_sponsorship', VisaSponsorship::NotOffered),
+            // Checked, but the page said nothing either way (or no page was found).
+            'unknown' => $query->whereNotNull('careers_checked_at')->whereNull('visa_sponsorship'),
+            default => null,
+        };
+
         if ($filters->needsSecondCheck) {
             $query->where('needs_second_check', true);
         }
@@ -93,6 +106,9 @@ final class SponsorDashboard
                 'skip_reason' => $sponsor->skip_reason?->value,
                 'is_scale_up' => str_contains($sponsor->route, Sponsor::SCALE_UP_ROUTE),
                 'is_ai' => $sponsor->is_ai,
+                'careers_url' => $sponsor->careers_url,
+                'mentions_developer_roles' => $sponsor->mentions_developer_roles,
+                'visa_sponsorship' => $sponsor->visa_sponsorship?->value,
             ]);
     }
 

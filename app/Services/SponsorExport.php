@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\SponsorStatus;
+use App\Enums\VisaSponsorship;
 use App\Exceptions\ExportFailed;
 use App\Models\Sponsor;
 use App\Models\Team;
@@ -29,6 +30,9 @@ final class SponsorExport
         'Scale-up',
         'AI',
         'Needs second check',
+        'Careers URL',
+        'Developer roles',
+        'Visa sponsorship',
     ];
 
     /**
@@ -112,6 +116,14 @@ final class SponsorExport
             $query->scaleUp();
         }
 
+        if ($filters->developerRolesOnly) {
+            $query->where('mentions_developer_roles', true);
+        }
+
+        if ($filters->visaSponsorship !== null) {
+            $query->where('visa_sponsorship', $filters->visaSponsorship);
+        }
+
         return $query->orderByDesc('confidence')->orderBy('name')->orderBy('id');
     }
 
@@ -132,6 +144,17 @@ final class SponsorExport
             str_contains($sponsor->route, Sponsor::SCALE_UP_ROUTE) ? 'Yes' : 'No',
             $sponsor->is_ai ? 'Yes' : 'No',
             $sponsor->needs_second_check ? 'Yes' : 'No',
+            CsvCell::safe($sponsor->careers_url),
+            match ($sponsor->mentions_developer_roles) {
+                true => 'Yes',
+                false => 'No',
+                null => '',
+            },
+            match ($sponsor->visa_sponsorship) {
+                VisaSponsorship::Offered => 'Offered',
+                VisaSponsorship::NotOffered => 'Not offered',
+                null => '',
+            },
         ];
     }
 }

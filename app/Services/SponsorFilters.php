@@ -11,6 +11,8 @@ use App\Enums\SponsorStatus;
  */
 final readonly class SponsorFilters
 {
+    public const VISA_SPONSORSHIP_VALUES = ['offered', 'not_offered', 'unknown'];
+
     public function __construct(
         public ?SponsorStatus $status = null,
         public ?string $town = null,
@@ -21,6 +23,9 @@ final readonly class SponsorFilters
         public bool $ratingMissing = false,
         public bool $needsSecondCheck = false,
         public bool $ai = false,
+        public bool $developerRoles = false,
+        /** `offered`, `not_offered`, or `unknown` (checked, but the page says nothing either way). */
+        public ?string $visaSponsorship = null,
         public ?string $search = null,
     ) {}
 }

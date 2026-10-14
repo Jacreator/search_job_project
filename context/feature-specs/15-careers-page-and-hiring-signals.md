@@ -47,6 +47,15 @@ The big employers in `known_employers` mostly use Workday or SuccessFactors, whi
 2. If none work, try the paths `/careers`, `/jobs`, `/join-us`, `/work-with-us` on the sponsor's website.
 3. Accept the first candidate that returns 200. Save it as `careers_url`.
 
+Choices made when building (2026-10-14):
+
+- Link text and the link's path (with `/`, `_`, and `-` as spaces) are matched with `TermMatcher`. A job board link counts whatever its text.
+- Homepage links are only followed to the sponsor's own site (the website's host or the homepage's final host after redirects, with or without `www.`, and their subdomains) or a job board host. Links to other sites (for example LinkedIn), non-http links, and links back to the homepage itself (logo, `#careers`) are ignored.
+- At most 5 homepage links are tried, in page order, then the four fallback paths, so one check makes at most 10 requests.
+- A failed homepage fetch still tries the fallback paths. Any fetch error counts as no page, as in the verifier; it never throws.
+- `careers_url` is the candidate URL that answered 200 (not the address after redirects), up to 2,048 characters, so the column is `string(2048)`.
+- Every fetch goes through `App\Services\PageFetcher`, which was taken out of `WebsiteVerifier` so both share the same safety rules.
+
 ## Signals
 
 From the careers page text (stripped, same 200 KB cap as spec 07), using `TermMatcher` (spec 14: case-insensitive, whole words or phrases, plural "s", hyphens as spaces, curly apostrophes as straight):
@@ -62,7 +71,7 @@ Signal detection lives in a pure helper, `App\Support\CareersSignals`, so it can
 
 When no careers page is found: `careers_url` null, `mentions_developer_roles` null, `visa_sponsorship` null.
 
-Always set `careers_checked_at` when the job finishes, found or not.
+Always set `careers_checked_at` when the job finishes, found or not. A job that fails after its retries also sets it, with the three fields null, so the next batch does not queue the row again.
 
 ## Command And Schedule
 
@@ -82,8 +91,8 @@ In `routes/console.php`: `sponsors:careers` hourly, `withoutOverlapping()`.
 
 ## Dashboard And Export
 
-- Dashboard (spec 12): careers URL link (new tab), a "Developer roles" column, the visa sponsorship badges (see `ui-context.md`), and filters for developer roles and visa sponsorship (offered, not offered, unknown).
-- Export (spec 10): "Careers URL", "Developer roles" (Yes / No / blank), and "Visa sponsorship" (Offered / Not offered / blank) columns, and `--developer-roles` and `--visa-sponsorship=offered|not_offered` filters.
+- Dashboard (spec 12): careers URL link (new tab), a "Developer roles" column, the visa sponsorship badges (see `ui-context.md`), and filters for developer roles and visa sponsorship (offered, not offered, unknown). Query keys `developer_roles` and `visa_sponsorship`. "Unknown" means checked (`careers_checked_at` set) with no answer, so unchecked rows are not included.
+- Export (spec 10): "Careers URL", "Developer roles" (Yes / No / blank), and "Visa sponsorship" (Offered / Not offered / blank) columns, at the end, and `--developer-roles` and `--visa-sponsorship=offered|not_offered` filters.
 - Shared lookups (spec 13): copy the four careers fields.
 
 ## Check When Done

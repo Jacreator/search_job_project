@@ -8,6 +8,7 @@ use App\Enums\AiSource;
 use App\Enums\SkipReason;
 use App\Enums\SponsorStatus;
 use App\Enums\TechReason;
+use App\Enums\VisaSponsorship;
 use App\Support\CompanyName;
 use Database\Factories\SponsorFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -42,6 +43,10 @@ use Illuminate\Support\Carbon;
  * @property int|null $confidence
  * @property bool $confirmed
  * @property bool $needs_second_check
+ * @property string|null $careers_url
+ * @property bool|null $mentions_developer_roles
+ * @property VisaSponsorship|null $visa_sponsorship
+ * @property Carbon|null $careers_checked_at
  * @property SponsorStatus $status
  * @property SkipReason|null $skip_reason
  * @property int $attempts
@@ -73,6 +78,10 @@ use Illuminate\Support\Carbon;
     'confidence',
     'confirmed',
     'needs_second_check',
+    'careers_url',
+    'mentions_developer_roles',
+    'visa_sponsorship',
+    'careers_checked_at',
     'status',
     'skip_reason',
     'attempts',
@@ -92,6 +101,11 @@ class Sponsor extends Model
      * The register route for Scale-up visa sponsors.
      */
     public const SCALE_UP_ROUTE = 'Scale-up';
+
+    /**
+     * The careers check only runs on websites at least this confident.
+     */
+    public const CAREERS_MIN_CONFIDENCE = 50;
 
     /**
      * The model's default values for attributes.
@@ -153,6 +167,32 @@ class Sponsor extends Model
     }
 
     /**
+     * Whether the careers check may run: a finished lookup with a confident website.
+     */
+    public function eligibleForCareersCheck(): bool
+    {
+        return $this->status === SponsorStatus::Done
+            && filled($this->website)
+            && $this->confidence !== null
+            && $this->confidence >= self::CAREERS_MIN_CONFIDENCE;
+    }
+
+    /**
+     * Only finished sponsors with a confident website whose careers page has not been checked.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function readyForCareersCheck(Builder $query): void
+    {
+        $query->where('status', SponsorStatus::Done)
+            ->whereNotNull('website')
+            ->where('website', '!=', '')
+            ->where('confidence', '>=', self::CAREERS_MIN_CONFIDENCE)
+            ->whereNull('careers_checked_at');
+    }
+
+    /**
      * Only sponsors classified as tech employers.
      *
      * @param  Builder<self>  $query
@@ -190,6 +230,9 @@ class Sponsor extends Model
             'ai_source' => AiSource::class,
             'confirmed' => 'boolean',
             'needs_second_check' => 'boolean',
+            'mentions_developer_roles' => 'boolean',
+            'visa_sponsorship' => VisaSponsorship::class,
+            'careers_checked_at' => 'datetime',
             'status' => SponsorStatus::class,
             'skip_reason' => SkipReason::class,
             'priority' => 'integer',

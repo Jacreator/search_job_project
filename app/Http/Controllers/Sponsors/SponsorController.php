@@ -37,6 +37,8 @@ class SponsorController extends Controller
                 'rating_missing' => $filters->ratingMissing,
                 'needs_second_check' => $filters->needsSecondCheck,
                 'ai' => $filters->ai,
+                'developer_roles' => $filters->developerRoles,
+                'visa_sponsorship' => $filters->visaSponsorship,
                 'search' => $filters->search,
             ],
             'statusCounts' => $dashboard->statusCounts($currentTeam),

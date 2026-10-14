@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\VisaSponsorship;
+
 final readonly class ExportFilters
 {
     public function __construct(
@@ -12,5 +14,7 @@ final readonly class ExportFilters
         public ?string $region = null,
         public bool $confirmedOnly = false,
         public bool $scaleUpOnly = false,
+        public bool $developerRolesOnly = false,
+        public ?VisaSponsorship $visaSponsorship = null,
     ) {}
 }

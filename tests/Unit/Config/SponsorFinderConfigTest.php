@@ -8,7 +8,8 @@ uses(TestCase::class);
 
 it('has the default batch size and rate', function () {
     expect(config('sponsor-finder.batch_size'))->toBe(100)
-        ->and(config('sponsor-finder.rate_per_minute'))->toBe(30);
+        ->and(config('sponsor-finder.rate_per_minute'))->toBe(30)
+        ->and(config('sponsor-finder.careers_rate_per_minute'))->toBe(30);
 });
 
 it('imports the four worker routes by default', function () {
@@ -84,6 +85,15 @@ it('has the spec 14 AI keywords', function () {
         'computer vision', 'nlp', 'data science', 'robotics', 'mlops',
         'ai-powered',
     ]);
+});
+
+it('has the spec 15 careers term lists', function () {
+    expect(config('sponsor-finder.careers_link_terms'))->toContain('careers', 'open roles', "we're hiring", 'life at')->toHaveCount(10)
+        ->and(config('sponsor-finder.job_board_hosts'))->toContain('greenhouse.io', 'myworkdayjobs.com', 'successfactors.com', 'breezy.hr')->toHaveCount(13)
+        ->and(config('sponsor-finder.developer_role_terms'))->toContain('node.js', 'full stack', 'engineering team')->not->toContain('node', 'full-stack')->toHaveCount(28)
+        ->and(config('sponsor-finder.visa_offer_terms'))->toContain('visa sponsorship', 'tier 2')->not->toContain('sponsorship')->toHaveCount(7)
+        ->and(config('sponsor-finder.visa_refusal_terms'))->toContain('unable to sponsor', 'not offer visa sponsorship')->toHaveCount(10)
+        ->and(config('sponsor-finder.right_to_work_terms'))->toBe(['right to work in the uk']);
 });
 
 it('has a starter list of known employers', function () {

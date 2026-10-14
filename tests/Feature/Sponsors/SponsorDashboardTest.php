@@ -128,6 +128,9 @@ test('a member sees the team\'s sponsors', function () {
                 'skip_reason' => null,
                 'is_scale_up' => true,
                 'is_ai' => false,
+                'careers_url' => null,
+                'mentions_developer_roles' => null,
+                'visa_sponsorship' => null,
             ])
         );
 });
@@ -332,6 +335,8 @@ test('combines filters and returns them to the page', function () {
                 'rating_missing' => false,
                 'needs_second_check' => false,
                 'ai' => false,
+                'developer_roles' => false,
+                'visa_sponsorship' => null,
                 'search' => 'match',
             ])
         );

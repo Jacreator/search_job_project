@@ -44,6 +44,9 @@ return [
 
     'rate_per_minute' => (int) (env('SPONSOR_RATE_PER_MINUTE') ?: 30),
 
+    // Careers page checks (spec 15). Own limiter, because they only fetch sponsors' own sites.
+    'careers_rate_per_minute' => (int) (env('SPONSOR_CAREERS_RATE_PER_MINUTE') ?: 30),
+
     /*
     |--------------------------------------------------------------------------
     | Worker Routes
@@ -188,6 +191,56 @@ return [
         'deep learning', 'llm', 'large language model', 'genai', 'generative',
         'computer vision', 'nlp', 'data science', 'robotics', 'mlops',
         'ai-powered',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Careers Pages And Hiring Signals
+    |--------------------------------------------------------------------------
+    |
+    | Matched with App\Support\TermMatcher, like the AI terms. Hyphenated
+    | forms ("full-stack", "back-end") are covered by the hyphen rule. Bare
+    | "sponsorship" is left out, because it also matches event sponsorship.
+    |
+    */
+
+    'careers_link_terms' => [
+        'careers', 'jobs', 'vacancies', 'join', 'work with us', 'opportunities',
+        'open roles', 'open positions', "we're hiring", 'life at',
+    ],
+
+    // Big employers mostly use Workday or SuccessFactors.
+    'job_board_hosts' => [
+        'greenhouse.io', 'lever.co', 'workable.com', 'ashbyhq.com',
+        'teamtailor.com', 'recruitee.com', 'bamboohr.com', 'myworkdayjobs.com',
+        'successfactors.com', 'smartrecruiters.com', 'pinpointhq.com',
+        'personio.com', 'breezy.hr',
+    ],
+
+    'developer_role_terms' => [
+        'software engineer', 'software developer', 'developer', 'web developer',
+        'php developer', 'laravel developer', 'full stack', 'fullstack',
+        'backend', 'back end', 'frontend', 'front end', 'php', 'laravel',
+        'node.js', 'nodejs', 'node js', 'python', 'typescript', 'ai engineer',
+        'ml engineer', 'machine learning', 'machine learning engineer',
+        'llm engineer', 'applied ai', 'data engineer', 'data scientist',
+        'engineering team',
+    ],
+
+    'visa_offer_terms' => [
+        'visa sponsorship', 'sponsorship available', 'able to sponsor',
+        'we sponsor', 'skilled worker', 'certificate of sponsorship', 'tier 2',
+    ],
+
+    'visa_refusal_terms' => [
+        'unable to sponsor', 'cannot sponsor', "can't sponsor", 'no sponsorship',
+        'not able to offer sponsorship', 'unable to offer sponsorship',
+        'unable to offer visa sponsorship', 'does not offer sponsorship',
+        'do not offer sponsorship', 'not offer visa sponsorship',
+    ],
+
+    'right_to_work_terms' => [
+        'right to work in the uk',
     ],
 
     /*

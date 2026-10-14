@@ -94,13 +94,14 @@ it('writes the headers and one row per finished sponsor with a website', functio
 
     expect(exportedRows($team))->toBe([
         SponsorExport::HEADERS,
-        ['Acme Software Ltd', 'Sheffield', 'Yorkshire', '01234567', '62012, 62020', 'https://acme.test', '85', 'Yes', 'No', 'No', 'No'],
+        ['Acme Software Ltd', 'Sheffield', 'Yorkshire', '01234567', '62012, 62020', 'https://acme.test', '85', 'Yes', 'No', 'No', 'No', '', '', ''],
     ]);
 });
 
 it('uses the spec column names', function () {
     expect(SponsorExport::HEADERS)->toBe([
         'Name', 'Town', 'Region', 'Company number', 'SIC codes', 'Website', 'Confidence', 'Confirmed', 'Scale-up', 'AI', 'Needs second check',
+        'Careers URL', 'Developer roles', 'Visa sponsorship',
     ]);
 });
 
@@ -120,7 +121,7 @@ it('leaves empty cells for missing values', function () {
 
     exportSponsors($team)->assertSuccessful();
 
-    expect(exportedRows($team)[1])->toBe(['Bare Ltd', '', '', '', '', 'https://example.test', '80', 'No', 'No', 'No', 'No']);
+    expect(exportedRows($team)[1])->toBe(['Bare Ltd', '', '', '', '', 'https://example.test', '80', 'No', 'No', 'No', 'No', '', '', '']);
 });
 
 it('exports only done rows with a website', function () {
