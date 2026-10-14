@@ -28,7 +28,7 @@
 - `app/Contracts/WebSearch` - the search interface, bound in `AppServiceProvider`. `app/Services/BraveWebSearch` makes all search API calls and returns `SearchResult` value objects. Swap the binding to change provider.
 - `app/Services/WebsiteScorer` - pure scoring logic. No HTTP.
 - `app/Services/WebsiteVerifier` - loads a homepage, checks for the company name, and returns the page text (`VerifiedPage`). Checks every redirect hop for a public address through `HostResolver`.
-- `app/Services/SharedLookup` - finds a reusable lookup from another sharing team. Database only.
+- `app/Services/SharedLookup` - finds a reusable lookup from another sharing team (same stored `normalised_name` and town, `done` or `skipped`, never `BRating`). Database only. Called by `EnrichSponsor` before any API call.
 - `app/Services/RatingChange` - applies the status rules for a rating change. Used by import and the dashboard.
 - `app/Services/RegisterDownload` - finds the latest register CSV through the GOV.UK content API and saves it to `storage/app/imports`. All GOV.UK HTTP calls.
 - `app/Services/RegisterImport` - reads the register CSV row by row and upserts one team's sponsors in chunks. Returns an `ImportSummary`.

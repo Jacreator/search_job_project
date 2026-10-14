@@ -74,6 +74,10 @@ class SponsorStatusReport extends Command
             ...(isset($reasons['']) ? [['none', $reasons['']]] : []),
         ]);
 
+        $this->table(['Needs second check', 'Count'], [
+            ['yes', $query->clone()->where('needs_second_check', true)->count()],
+        ]);
+
         return self::SUCCESS;
     }
 

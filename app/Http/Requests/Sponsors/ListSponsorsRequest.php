@@ -27,6 +27,7 @@ class ListSponsorsRequest extends FormRequest
             'tech' => ['nullable', 'boolean'],
             'scale_up' => ['nullable', 'boolean'],
             'rating_missing' => ['nullable', 'boolean'],
+            'needs_second_check' => ['nullable', 'boolean'],
             'search' => ['nullable', 'string', 'max:255'],
             'page' => ['nullable', 'integer', 'min:1'],
         ];
@@ -47,6 +48,7 @@ class ListSponsorsRequest extends FormRequest
             tech: $this->boolean('tech'),
             scaleUp: $this->boolean('scale_up'),
             ratingMissing: $this->boolean('rating_missing'),
+            needsSecondCheck: $this->boolean('needs_second_check'),
             search: $this->text('search'),
         );
     }

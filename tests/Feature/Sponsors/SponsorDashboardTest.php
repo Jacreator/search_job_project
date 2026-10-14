@@ -123,6 +123,7 @@ test('a member sees the team\'s sponsors', function () {
                 'website' => 'https://acme.test',
                 'confidence' => 85,
                 'confirmed' => true,
+                'needs_second_check' => false,
                 'status' => 'done',
                 'skip_reason' => null,
                 'is_scale_up' => true,
@@ -328,6 +329,7 @@ test('combines filters and returns them to the page', function () {
                 'tech' => true,
                 'scale_up' => false,
                 'rating_missing' => false,
+                'needs_second_check' => false,
                 'search' => 'match',
             ])
         );

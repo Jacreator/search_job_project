@@ -19,6 +19,7 @@ final readonly class SponsorFilters
         public bool $tech = false,
         public bool $scaleUp = false,
         public bool $ratingMissing = false,
+        public bool $needsSecondCheck = false,
         public ?string $search = null,
     ) {}
 }

@@ -462,3 +462,11 @@ it('fails when no team is given', function () {
         ->expectsOutputToContain('The --team option is required.')
         ->assertFailed();
 });
+
+it('stores the normalised name of new sponsors', function () {
+    $team = Team::factory()->create();
+
+    importInto($team, registerCsv(['"The Acme Software Group Ltd.",Sheffield,,A rating,Skilled Worker']))->assertSuccessful();
+
+    expect(sponsorNamed($team, 'The Acme Software Group Ltd.')->normalised_name)->toBe('acme software');
+});

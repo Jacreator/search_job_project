@@ -26,7 +26,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useInitials } from '@/hooks/use-initials';
-import { edit, index, update } from '@/routes/teams';
+import { edit, index, lookupSharing, update } from '@/routes/teams';
 import { sponsorAccess, update as updateMember } from '@/routes/teams/members';
 import type {
     RoleOption,
@@ -37,7 +37,7 @@ import type {
 } from '@/types';
 
 type Props = {
-    team: Team;
+    team: Team & { shareLookups: boolean };
     members: TeamMember[];
     invitations: TeamInvitation[];
     permissions: TeamPermissions;
@@ -82,6 +82,13 @@ export default function TeamEdit({
     const updateSponsorAccess = (member: TeamMember, canEdit: boolean) => {
         router.visit(sponsorAccess([team.slug, member.id]), {
             data: { can_edit_sponsors: canEdit },
+            preserveScroll: true,
+        });
+    };
+
+    const updateLookupSharing = (share: boolean) => {
+        router.visit(lookupSharing(team.slug), {
+            data: { share_lookups: share },
             preserveScroll: true,
         });
     };
@@ -149,6 +156,36 @@ export default function TeamEdit({
                         <>
                             <Heading variant="small" title={team.name} />
                         </>
+                    )}
+                </div>
+
+                <div className="space-y-6">
+                    <Heading
+                        variant="small"
+                        title="Lookup sharing"
+                        description="Reuse finished sponsor lookups between teams that both share, to save API calls"
+                    />
+
+                    {permissions.canUpdateTeam ? (
+                        <Label className="flex items-center gap-2 font-normal">
+                            <Checkbox
+                                data-test="share-lookups-checkbox"
+                                checked={team.shareLookups}
+                                onCheckedChange={(checked) =>
+                                    updateLookupSharing(checked === true)
+                                }
+                            />
+                            Share lookups with other teams
+                        </Label>
+                    ) : (
+                        <p
+                            data-test="share-lookups-label"
+                            className="text-sm text-muted-foreground"
+                        >
+                            {team.shareLookups
+                                ? 'This team shares lookups with other teams.'
+                                : 'This team does not share lookups with other teams.'}
+                        </p>
                     )}
                 </div>
 

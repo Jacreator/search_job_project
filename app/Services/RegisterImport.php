@@ -9,6 +9,7 @@ use App\Enums\SponsorStatus;
 use App\Exceptions\InvalidRegisterFile;
 use App\Models\Sponsor;
 use App\Models\Team;
+use App\Support\CompanyName;
 use App\Support\PriorityLocations;
 use App\Support\SponsorRating;
 use Closure;
@@ -277,6 +278,7 @@ final class RegisterImport
         return [
             'team_id' => $team->id,
             'name' => $entry['name'],
+            'normalised_name' => CompanyName::normalise($entry['name']),
             'town' => $entry['town'],
             'county' => $entry['county'],
             'route' => implode(self::ROUTE_SEPARATOR, $entry['routes']),

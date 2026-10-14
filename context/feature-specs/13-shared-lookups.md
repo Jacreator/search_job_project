@@ -12,12 +12,13 @@ Let teams reuse each other's finished lookups to save API calls. Opt-in per team
 
 - `add_share_lookups_to_teams_table`: `share_lookups` (boolean, default false). Add the cast and fillable entry on `Team`.
 - `add_needs_second_check_to_sponsors_table`: `needs_second_check` (boolean, default false, indexed). Add the cast and fillable entry on `Sponsor`.
+- `add_normalised_name_to_sponsors_table`: `normalised_name` (string, default `''`, indexed), filled for existing rows by the migration. The `Sponsor` model sets it on every save and import sets it on insert. Added after the first build so the lookup uses an index instead of reading every row in the town (approved by James, 2026-10-14).
 
 ## Toggle
 
 - Route: `PATCH settings/teams/{team}/lookup-sharing`, inside the existing `EnsureTeamMembership` group in `routes/settings.php`.
 - Form Request authorises with `TeamPolicy::update` and validates `share_lookups` as boolean.
-- UI: a "Share lookups with other teams" switch on `resources/js/pages/teams/edit.tsx`, with one line explaining it. Editable by owners and admins, read-only for members.
+- UI: a "Share lookups with other teams" checkbox on `resources/js/pages/teams/edit.tsx`, with one line explaining it. Editable by owners and admins, read-only text for members. A checkbox, not a switch, because the starter kit has no switch component and adding one needs a new npm dependency (same control as the spec 11 flag).
 
 ## Reuse In The Enrich Job
 
@@ -34,6 +35,8 @@ In `EnrichSponsor`, before any API call:
 - If the source row is `confirmed` (a hand-checked website): cap the copied confidence at 74 and set `needs_second_check` to true. 74 is just under the 75 "trusted" threshold, so the row shows amber and lands in review.
 - Copies from unconfirmed source rows keep their confidence and do not set the flag (the score was calculated the same way the team's own pipeline would).
 - No match: run the normal pipeline.
+- The lookup runs for `pending` and `ch_done` rows, after `attempts` is incremented, so a copy counts as one attempt.
+- Matching: on the stored, indexed `sponsors.normalised_name` (`CompanyName::normalise(name)`), then the town (`lower(town)`), other sharing teams, and the statuses allowed. The exact name is checked again in PHP, because the MySQL collation also ignores accents. Rows from soft-deleted teams are never used.
 
 ## Second Check
 

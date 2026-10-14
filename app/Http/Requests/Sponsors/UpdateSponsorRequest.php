@@ -75,8 +75,9 @@ class UpdateSponsorRequest extends FormRequest
 
     /**
      * The column changes to save. A website saved by hand is trusted: confidence 100 and confirmed.
+     * Confirming, or saving a website, is this team's own check, so it clears `needs_second_check`.
      *
-     * @return array{website: string, confidence: int, confirmed: bool}|array{confirmed: bool}
+     * @return array{website: string, confidence: int, confirmed: bool, needs_second_check: bool}|array{confirmed: bool, needs_second_check?: bool}
      */
     public function changes(): array
     {
@@ -85,10 +86,15 @@ class UpdateSponsorRequest extends FormRequest
                 'website' => (string) $this->validated('website'),
                 'confidence' => 100,
                 'confirmed' => true,
+                'needs_second_check' => false,
             ];
         }
 
-        return ['confirmed' => $this->boolean('confirmed')];
+        if ($this->boolean('confirmed')) {
+            return ['confirmed' => true, 'needs_second_check' => false];
+        }
+
+        return ['confirmed' => false];
     }
 
     /**

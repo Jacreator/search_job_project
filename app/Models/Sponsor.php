@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\SkipReason;
 use App\Enums\SponsorStatus;
 use App\Enums\TechReason;
+use App\Support\CompanyName;
 use Database\Factories\SponsorFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -20,6 +21,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $team_id
  * @property string $name
+ * @property string $normalised_name
  * @property string|null $town
  * @property string|null $county
  * @property string $route
@@ -36,6 +38,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $website
  * @property int|null $confidence
  * @property bool $confirmed
+ * @property bool $needs_second_check
  * @property SponsorStatus $status
  * @property SkipReason|null $skip_reason
  * @property int $attempts
@@ -47,6 +50,7 @@ use Illuminate\Support\Carbon;
 #[Fillable([
     'team_id',
     'name',
+    'normalised_name',
     'town',
     'county',
     'route',
@@ -63,6 +67,7 @@ use Illuminate\Support\Carbon;
     'website',
     'confidence',
     'confirmed',
+    'needs_second_check',
     'status',
     'skip_reason',
     'attempts',
@@ -93,8 +98,20 @@ class Sponsor extends Model
         'priority' => 0,
         'attempts' => 0,
         'confirmed' => false,
+        'needs_second_check' => false,
         'rating_grade_manual' => false,
     ];
+
+    /**
+     * Keep `normalised_name` in step with `name`, so shared lookups can match on an index.
+     * Import inserts rows without model events and sets it itself.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Sponsor $sponsor): void {
+            $sponsor->normalised_name = CompanyName::normalise($sponsor->name);
+        });
+    }
 
     /**
      * Get the team that owns the sponsor.
@@ -164,6 +181,7 @@ class Sponsor extends Model
             'rating_grade_manual' => 'boolean',
             'tech_reason' => TechReason::class,
             'confirmed' => 'boolean',
+            'needs_second_check' => 'boolean',
             'status' => SponsorStatus::class,
             'skip_reason' => SkipReason::class,
             'priority' => 'integer',

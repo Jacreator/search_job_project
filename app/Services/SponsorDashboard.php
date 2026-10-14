@@ -13,7 +13,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 /**
  * Reads one team's sponsors for the review dashboard. Database only.
  *
- * @phpstan-type Row array{id: int, name: string, town: string|null, region: string|null, rating_grade: string|null, rating_grade_manual: bool, sic_codes: array<int, string>, website: string|null, confidence: int|null, confirmed: bool, status: string, skip_reason: string|null, is_scale_up: bool}
+ * @phpstan-type Row array{id: int, name: string, town: string|null, region: string|null, rating_grade: string|null, rating_grade_manual: bool, sic_codes: array<int, string>, website: string|null, confidence: int|null, confirmed: bool, needs_second_check: bool, status: string, skip_reason: string|null, is_scale_up: bool}
  */
 final class SponsorDashboard
 {
@@ -56,6 +56,10 @@ final class SponsorDashboard
             $query->whereNull('rating_grade');
         }
 
+        if ($filters->needsSecondCheck) {
+            $query->where('needs_second_check', true);
+        }
+
         if ($filters->search !== null) {
             $query->whereRaw("lower(name) like ? escape '!'", [
                 '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower($filters->search)).'%',
@@ -80,6 +84,7 @@ final class SponsorDashboard
                 'website' => $sponsor->website,
                 'confidence' => $sponsor->confidence,
                 'confirmed' => $sponsor->confirmed,
+                'needs_second_check' => $sponsor->needs_second_check,
                 'status' => $sponsor->status->value,
                 'skip_reason' => $sponsor->skip_reason?->value,
                 'is_scale_up' => str_contains($sponsor->route, Sponsor::SCALE_UP_ROUTE),

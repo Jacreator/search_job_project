@@ -6,6 +6,7 @@ import InputError from '@/components/input-error';
 import {
     confidenceClass,
     scaleUpClasses,
+    secondCheckClasses,
     skipReasonLabels,
     statusClasses,
     statusLabels,
@@ -208,6 +209,14 @@ export default function SponsorRow({ teamSlug, sponsor, permissions }: Props) {
                 >
                     {statusLabels[sponsor.status]}
                 </Badge>
+                {sponsor.needs_second_check ? (
+                    <Badge
+                        data-test="second-check-badge"
+                        className={`ml-1 border-transparent ${secondCheckClasses}`}
+                    >
+                        Needs second check
+                    </Badge>
+                ) : null}
                 {sponsor.skip_reason ? (
                     <div className="mt-1 text-xs text-muted-foreground">
                         {skipReasonLabels[sponsor.skip_reason]}

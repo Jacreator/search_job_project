@@ -9,6 +9,7 @@ use App\Enums\SkipReason;
 use App\Enums\SponsorStatus;
 use App\Models\Sponsor;
 use App\Services\CompaniesHouse;
+use App\Services\SharedLookup;
 use App\Services\WebsiteScorer;
 use App\Services\WebsiteVerifier;
 use App\Support\EmployerClassifier;
@@ -40,6 +41,11 @@ final class EnrichSponsor implements ShouldBeUnique, ShouldQueue
     public array $backoff = [60, 300, 900];
 
     public bool $deleteWhenMissingModels = true;
+
+    /**
+     * Highest confidence for a copy of another team's confirmed website: just under the trusted 75.
+     */
+    public const SHARED_CONFIRMED_CONFIDENCE = 74;
 
     /**
      * Seconds the unique lock is held at most, the same as `retryUntil()`. The lock is released
@@ -75,6 +81,7 @@ final class EnrichSponsor implements ShouldBeUnique, ShouldQueue
         WebSearch $search,
         WebsiteScorer $scorer,
         WebsiteVerifier $verifier,
+        SharedLookup $sharedLookup,
     ): void {
         $sponsor = $this->sponsor;
 
@@ -83,6 +90,14 @@ final class EnrichSponsor implements ShouldBeUnique, ShouldQueue
         }
 
         $sponsor->increment('attempts');
+
+        $source = $sharedLookup->find($sponsor);
+
+        if ($source !== null) {
+            $this->copyFrom($source);
+
+            return;
+        }
 
         if ($sponsor->status === SponsorStatus::Pending) {
             $match = $companiesHouse->findCompany($sponsor->name);
@@ -137,6 +152,32 @@ final class EnrichSponsor implements ShouldBeUnique, ShouldQueue
         Sponsor::query()->whereKey($this->sponsor->getKey())->update([
             'status' => SponsorStatus::Failed,
             'error' => mb_substr($exception?->getMessage() ?: 'Unknown error.', 0, 500),
+        ]);
+    }
+
+    /**
+     * Copy another team's finished lookup instead of calling the APIs. A hand-confirmed website
+     * is capped just under the trusted threshold and flagged until this team checks it.
+     * Confirmed, region, priority, and rating stay this team's own.
+     */
+    private function copyFrom(Sponsor $source): void
+    {
+        $confidence = $source->confirmed && $source->confidence !== null
+            ? min($source->confidence, self::SHARED_CONFIRMED_CONFIDENCE)
+            : $source->confidence;
+
+        $this->sponsor->update([
+            'company_number' => $source->company_number,
+            'company_status' => $source->company_status,
+            'sic_codes' => $source->sic_codes,
+            'is_tech' => $source->is_tech,
+            'tech_reason' => $source->tech_reason,
+            'skip_reason' => $source->skip_reason,
+            'website' => $source->website,
+            'confidence' => $confidence,
+            'needs_second_check' => $source->confirmed,
+            'status' => $source->status,
+            'error' => null,
         ]);
     }
 
