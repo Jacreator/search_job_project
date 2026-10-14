@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Enums\VisaSponsorship;
 use App\Exceptions\ExportFailed;
 use App\Models\Team;
 use App\Services\ExportFilters;
@@ -23,7 +24,9 @@ class ExportSponsors extends Command
         {--town= : Only sponsors in this town}
         {--region= : Only sponsors in this region}
         {--confirmed : Only sponsors with a confirmed website}
-        {--scale-up : Only Scale-up visa sponsors}';
+        {--scale-up : Only Scale-up visa sponsors}
+        {--developer-roles : Only sponsors whose careers page mentions developer roles}
+        {--visa-sponsorship= : Only sponsors whose careers page says offered or not_offered}';
 
     /**
      * The console command description.
@@ -65,12 +68,23 @@ class ExportSponsors extends Command
             return self::FAILURE;
         }
 
+        $visa = trim((string) $this->option('visa-sponsorship'));
+        $visaSponsorship = VisaSponsorship::tryFrom($visa);
+
+        if ($visa !== '' && $visaSponsorship === null) {
+            $this->error('The --visa-sponsorship option must be offered or not_offered.');
+
+            return self::FAILURE;
+        }
+
         $filters = new ExportFilters(
             minConfidence: $minConfidence,
             town: trim((string) $this->option('town')),
             region: trim((string) $this->option('region')),
             confirmedOnly: (bool) $this->option('confirmed'),
             scaleUpOnly: (bool) $this->option('scale-up'),
+            developerRolesOnly: (bool) $this->option('developer-roles'),
+            visaSponsorship: $visaSponsorship,
         );
 
         $path = storage_path("app/exports/{$team->slug}_tech_sponsors_".now()->toDateString().'.csv');

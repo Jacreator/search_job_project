@@ -1,11 +1,11 @@
 # Status Summary and Second-Pass Backlog
 
-The plan is to finish features 13 to 15 first, then do a second pass that handles everything listed below. Add new items here as they come up while 13 to 15 are being built, instead of fixing them on the spot. `progress-tracker.md` keeps the full history.
+All 15 feature specs are built. The second pass handles everything listed below. Add new items here as they come up, instead of fixing them on the spot. `progress-tracker.md` keeps the full history.
 
 ## Where Things Stand (2026-10-14)
 
-- Done: features 01 to 14 (setup, sponsors table, CSV import, Companies House, employer classification, web search, website scoring, enrich job, batch and schedule, export, sponsor edit permission, review dashboard, shared lookups, AI tagging).
-- Next: 15 Careers page and hiring signals.
+- Done: all 15 features (setup, sponsors table, CSV import, Companies House, employer classification, web search, website scoring, enrich job, batch and schedule, export, sponsor edit permission, review dashboard, shared lookups, AI tagging, careers page and hiring signals).
+- Next: the second pass below.
 
 ## Open Questions
 
@@ -25,6 +25,7 @@ Decide these before the second pass starts.
 - [ ] Team edit page: the "Share lookups with other teams" checkbox and the read-only text for members (Feature 13).
 - [ ] Dashboard: the "Needs second check" badge and filter (Feature 13).
 - [ ] Dashboard: the "AI" badge and "AI only" filter (Feature 14).
+- [ ] Dashboard: the "Careers" and "Developer roles" columns, visa badges, and the two careers filters (Feature 15). The filter row now has six fields, so check it still fits.
 
 ### Matching gaps
 
@@ -44,6 +45,13 @@ Decide these before the second pass starts.
 - [ ] Rows looked up before Feature 14 (about 60 local rows) have no AI tag. The name check can be re-run with no API calls; the homepage check needs the page fetched again.
 - [ ] Live run to see homepage tagging on real sites.
 
+### Careers pages (Feature 15)
+
+- [ ] The careers check runs once per row and is never repeated. Jobs and visa wording change, so decide whether to re-check rows after some time (for example 30 days).
+- [ ] A fetch error counts as "no page", so a site that is down during the check is marked checked with nothing found. Decide whether to retry those later.
+- [ ] Careers pages built with JavaScript (many job boards) may show little text to a plain fetch, so developer roles and visa wording can be missed.
+- [ ] Larger live run: only 7 local rows were eligible (5 pages found).
+
 ### Revisit if things change
 
 - [ ] Priority locations are one global config list. Make them per team only if a team outside Yorkshire uses the app.
@@ -54,5 +62,5 @@ Decide these before the second pass starts.
 
 ### Before calling the project done
 
-- [ ] Run `composer ci:check` in full and record the test count. The last count is 680, from Feature 14.
+- [ ] Run `composer ci:check` in full and record the test count. The last count is 753, from Feature 15.
 - [ ] Do a full live run on one region with real keys, from import to enrich to export, and check the results by hand.

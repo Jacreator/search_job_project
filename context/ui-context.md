@@ -69,7 +69,7 @@ Added by spec 15, from `visa_sponsorship`:
 
 - Summary counts per status at the top (one small card per status), and skip counts per skip reason.
 - Filter row: status, town, region, minimum confidence, tech only, Scale-up only, search by name. Also "Rating missing". Later specs add: needs second check (13), AI only (14), developer roles and visa sponsorship: offered, not offered, unknown (15).
-- Paginated table: name, town, region, rating (A, B, or "Missing", with an A/B select for owners and admins on editable rows), SIC codes, website (link), confidence, status, actions. Spec 15 adds the careers URL link, a developer roles column, and the visa sponsorship badges.
+- Paginated table: name, town, region, rating (A, B, or "Missing", with an A/B select for owners and admins on editable rows), SIC codes, website (link), confidence, status, actions. Spec 15 adds a "Careers" column (a "Careers page" link opening in a new tab, with the visa sponsorship badge under it) and a "Developer roles" column (Yes, No, or - when not checked), after "Confirmed". The visa filter is a select (any, offered, not offered, unknown) and developer roles a checkbox.
 - Row action: edit website inline (a pencil button in the website cell), mark confirmed (a checkbox in the "Confirmed" column). Both only on `done` rows, for users who may edit.
 - The table is a plain HTML table with Tailwind classes. Page parts live in `resources/js/components/sponsors`, with labels and badge classes in `sponsor-labels.ts`.
 

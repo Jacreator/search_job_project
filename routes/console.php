@@ -14,3 +14,8 @@ Schedule::command('sponsors:enrich')
     ->hourly()
     ->withoutOverlapping()
     ->description('Queue the next batch of sponsor lookups');
+
+Schedule::command('sponsors:careers')
+    ->hourly()
+    ->withoutOverlapping()
+    ->description('Queue the next batch of careers page checks');

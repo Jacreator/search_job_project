@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 14 complete. Feature 15 not started.
+- Feature 15 complete. All 15 feature specs are built. Next is the second pass (`context/status-summary.md`).
 
 ## Current Goal
 
-- Feature 15: Careers page and hiring signals
+- Second pass: the backlog in `context/status-summary.md`
 
 ## Completed
 
@@ -211,13 +211,26 @@ Update this file whenever the current phase, active feature, or implementation s
   - Real names (no API calls): 299 of 122,938 register names are tagged from the name, none of them looked up yet. Some are wrong: "Ai" as a name or initials (for example "Ai Beauty LTD", "AI & CO LTD TA Flying Horse Restaurant"). Logged in the backlog.
   - Not checked in a browser, and not run live.
 
+- Feature 15: Careers page and hiring signals (2026-10-14):
+  - Migration `2026_10_14_000005_add_careers_fields_to_sponsors_table` (`careers_url` string(2048), `mentions_developer_roles` boolean, `visa_sponsorship` string, `careers_checked_at` timestamp, all nullable). Runs, rolls back, and re-runs on local MySQL. `App\Enums\VisaSponsorship` (`Offered`, `NotOffered`); `Sponsor` casts, fillable, docblock, `CAREERS_MIN_CONFIDENCE` (50), `eligibleForCareersCheck()`, and the `readyForCareersCheck()` scope.
+  - Config: `careers_rate_per_minute` (`SPONSOR_CAREERS_RATE_PER_MINUTE`, default 30, in `.env`, `.env.example`, pinned empty in `phpunit.xml`), and the six spec term lists. `careers-pages` limiter in `AppServiceProvider`.
+  - `App\Services\PageFetcher` (and `FetchedPage`) taken out of `WebsiteVerifier`, with the same rules (public addresses, hand-followed redirects, pinned address, 10 s timeout, 2 MB cap). `App\Support\PageText` holds the page text stripping. `WebsiteVerifier` now uses both; its tests pass unchanged.
+  - `App\Support\CareersSignals` (`mentionsDeveloperRoles`, `visaSponsorship`: refusal, then offer, then right to work, else null), terms from config, through `TermMatcher`.
+  - `App\Services\CareersPageFinder` (and `CareersPage`): homepage links by text, path, or job board host, own site and job boards only, at most 5, then `/careers`, `/jobs`, `/join-us`, `/work-with-us`; first 200 wins. Choices written into spec 15.
+  - `App\Jobs\FindCareersPage`: unique per sponsor, `$maxExceptions` 3, backoff, `retryUntil()` one day, `RateLimited('careers-pages')`. Leaves checked or ineligible rows alone, never changes `status`, always sets `careers_checked_at`, also from `failed()`.
+  - `php artisan sponsors:careers {--team=} {--limit=}` (`FindCareersPages`): ready rows by priority then id, limit or `batch_size`, counts rows already queued. Scheduled hourly, `withoutOverlapping()`.
+  - Shared lookups copy the four careers fields. Dashboard: `careers_url`, `mentions_developer_roles`, `visa_sponsorship` per row, "Careers" and "Developer roles" columns, visa badges, "Developer roles" checkbox and visa select (offered, not offered, unknown = checked with no answer). Export: "Careers URL", "Developer roles", "Visa sponsorship" columns, `--developer-roles` and `--visa-sponsorship=offered|not_offered`.
+  - Tests: `tests/Unit/Support/CareersSignalsTest.php` (every spec case), `tests/Feature/Sponsors/FindCareersPageTest.php` (45: migration, link by text and path, job boards including a Workday subdomain, new wording with curly and straight apostrophes, relative, fragment, subdomain, and no-www links, other sites and mail links ignored, fallback paths, homepage failure, first 200 wins, 5 link cap, nothing found, private address, ineligible rows, confidence 50, running twice, failed job, unique and retry settings, limiter, command order, limit, team, bad input, schedule, shared copy, dashboard columns and filters, export columns and filters), config tests. Existing export and dashboard tests updated. `composer ci:check` passes (753 tests).
+  - Live check (2026-10-14, no paid APIs, 7 eligible local sponsors): all finished with no failures. Careers pages found for 5: Agilio (`/life-at-agilio/`), ANSYS (`ansys.synopsys.com/careers`, after the homepage redirect), Arnold Magnetic, ASK4, and AthelstanOne (`/careers/`, visa `offered`: "Skilled Worker visa sponsorship available", checked by hand). ANSYS mentions developer roles. None found for Acquire Learning and AEGIQ (AEGIQ's homepage has no careers link, checked by hand).
+  - Not checked in a browser.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 15: Careers page and hiring signals.
+- Second pass: decide the open questions, then work through the backlog in `context/status-summary.md`.
 
 ## Open Questions
 
@@ -254,6 +267,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - Sponsor data is scoped per team (`team_id` on `sponsors`). API keys and the rate limiters are shared.
 - Import, enrich, status, and export stay Artisan commands. Commands take `--team=` (slug).
 - Sponsor editing: owners and admins always; members only when an owner or admin turns on their `can_edit_sponsors` flag (default off). New `TeamPermission::ManageSponsorEditors` for owner and admin.
+- All sponsor page fetches go through `PageFetcher`, so the outbound request rules live in one class.
+- The careers check runs once per row (`careers_checked_at`). A failed check is also marked checked, with no result.
 - AI tagging (`is_ai`, `ai_source`) is independent of `is_tech`: a row skipped as not tech can still be tagged from its name.
 - Shared lookups match on the stored, indexed `sponsors.normalised_name`, kept in step by the model and import. A change to the `CompanyName` rules needs the column refilled.
 - Lookups are shared between teams only when both teams have `share_lookups` on (default off, owners and admins toggle). `confirmed`, `region`, `priority`, `rating_grade`, and `rating_grade_manual` are never shared, and `BRating` rows are never a source. A copy of another team's hand-confirmed website is capped at confidence 74 and flagged `needs_second_check` until this team confirms it.

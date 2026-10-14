@@ -20,9 +20,9 @@
 composer dev
 ```
 
-This starts the server, queue worker, logs, and Vite together. The queue worker must be running for the enrich jobs to process.
+This starts the server, queue worker, logs, and Vite together. The queue worker must be running for the enrich and careers jobs to process.
 
-The scheduler is needed for the hourly batch:
+The scheduler is needed for the hourly batches (`sponsors:enrich` and `sponsors:careers`):
 
 ```bash
 php artisan schedule:work

@@ -9,6 +9,10 @@ export type SkipReason = 'no_match' | 'not_tech' | 'inactive' | 'b_rating';
 
 export type RatingGrade = 'A' | 'B';
 
+export type VisaSponsorship = 'offered' | 'not_offered';
+
+export type VisaSponsorshipFilter = VisaSponsorship | 'unknown';
+
 export type Sponsor = {
     id: number;
     name: string;
@@ -25,6 +29,9 @@ export type Sponsor = {
     skip_reason: SkipReason | null;
     is_scale_up: boolean;
     is_ai: boolean;
+    careers_url: string | null;
+    mentions_developer_roles: boolean | null;
+    visa_sponsorship: VisaSponsorship | null;
 };
 
 export type SponsorFilters = {
@@ -37,6 +44,8 @@ export type SponsorFilters = {
     rating_missing: boolean;
     needs_second_check: boolean;
     ai: boolean;
+    developer_roles: boolean;
+    visa_sponsorship: VisaSponsorshipFilter | null;
     search: string | null;
 };
 

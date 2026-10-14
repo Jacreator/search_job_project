@@ -1,4 +1,9 @@
-import type { SkipReason, SponsorStatus } from '@/types';
+import type {
+    SkipReason,
+    SponsorStatus,
+    VisaSponsorship,
+    VisaSponsorshipFilter,
+} from '@/types';
 
 export const statusLabels: Record<SponsorStatus, string> = {
     pending: 'Pending',
@@ -22,6 +27,24 @@ export const skipReasonLabels: Record<SkipReason, string> = {
     not_tech: 'Not tech',
     inactive: 'Not active',
     b_rating: 'B rating',
+};
+
+export const visaLabels: Record<VisaSponsorship, string> = {
+    offered: 'Visa sponsorship offered',
+    not_offered: 'No visa sponsorship',
+};
+
+export const visaClasses: Record<VisaSponsorship, string> = {
+    offered:
+        'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+    not_offered:
+        'bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300',
+};
+
+export const visaFilterLabels: Record<VisaSponsorshipFilter, string> = {
+    offered: 'Offered',
+    not_offered: 'Not offered',
+    unknown: 'Unknown',
 };
 
 export const scaleUpClasses =

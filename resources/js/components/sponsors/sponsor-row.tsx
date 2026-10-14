@@ -11,6 +11,8 @@ import {
     skipReasonLabels,
     statusClasses,
     statusLabels,
+    visaClasses,
+    visaLabels,
 } from '@/components/sponsors/sponsor-labels';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -250,6 +252,40 @@ export default function SponsorRow({ teamSlug, sponsor, permissions }: Props) {
                     >
                         {sponsor.confirmed ? 'Yes' : 'No'}
                     </span>
+                )}
+            </td>
+            <td className="px-3 py-3">
+                {sponsor.careers_url ? (
+                    <a
+                        href={sponsor.careers_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-test="careers-link"
+                        className="underline underline-offset-4"
+                    >
+                        Careers page
+                    </a>
+                ) : (
+                    <span className="text-muted-foreground">-</span>
+                )}
+                {sponsor.visa_sponsorship ? (
+                    <div className="mt-1">
+                        <Badge
+                            data-test="visa-badge"
+                            className={`border-transparent ${visaClasses[sponsor.visa_sponsorship]}`}
+                        >
+                            {visaLabels[sponsor.visa_sponsorship]}
+                        </Badge>
+                    </div>
+                ) : null}
+            </td>
+            <td className="px-3 py-3">
+                {sponsor.mentions_developer_roles === null ? (
+                    <span className="text-muted-foreground">-</span>
+                ) : sponsor.mentions_developer_roles ? (
+                    'Yes'
+                ) : (
+                    <span className="text-muted-foreground">No</span>
                 )}
             </td>
         </tr>

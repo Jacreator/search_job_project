@@ -35,6 +35,8 @@ const columns = [
     { title: 'Confidence', className: 'text-right' },
     { title: 'Status' },
     { title: 'Confirmed' },
+    { title: 'Careers' },
+    { title: 'Developer roles' },
 ];
 
 export default function SponsorsIndex({

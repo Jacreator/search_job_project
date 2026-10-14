@@ -1,7 +1,10 @@
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { statusLabels } from '@/components/sponsors/sponsor-labels';
+import {
+    statusLabels,
+    visaFilterLabels,
+} from '@/components/sponsors/sponsor-labels';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -14,7 +17,11 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { index } from '@/routes/sponsors';
-import type { SponsorFilters as Filters, SponsorStatus } from '@/types';
+import type {
+    SponsorFilters as Filters,
+    SponsorStatus,
+    VisaSponsorshipFilter,
+} from '@/types';
 
 const ANY = 'any';
 
@@ -35,6 +42,10 @@ export default function SponsorFilters({ teamSlug, filters, regions }: Props) {
     const [tech, setTech] = useState(filters.tech);
     const [scaleUp, setScaleUp] = useState(filters.scale_up);
     const [ai, setAi] = useState(filters.ai);
+    const [developerRoles, setDeveloperRoles] = useState(
+        filters.developer_roles,
+    );
+    const [visa, setVisa] = useState<string>(filters.visa_sponsorship ?? ANY);
     const [ratingMissing, setRatingMissing] = useState(filters.rating_missing);
     const [needsSecondCheck, setNeedsSecondCheck] = useState(
         filters.needs_second_check,
@@ -84,6 +95,14 @@ export default function SponsorFilters({ teamSlug, filters, regions }: Props) {
             query.ai = '1';
         }
 
+        if (developerRoles) {
+            query.developer_roles = '1';
+        }
+
+        if (visa !== ANY) {
+            query.visa_sponsorship = visa;
+        }
+
         if (ratingMissing) {
             query.rating_missing = '1';
         }
@@ -101,7 +120,7 @@ export default function SponsorFilters({ teamSlug, filters, regions }: Props) {
             data-test="sponsor-filters"
             className="space-y-4 rounded-xl border p-4"
         >
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
                 <div className="grid gap-2">
                     <Label htmlFor="filter-search">Name</Label>
                     <Input
@@ -160,6 +179,27 @@ export default function SponsorFilters({ teamSlug, filters, regions }: Props) {
                 </div>
 
                 <div className="grid gap-2">
+                    <Label htmlFor="filter-visa">Visa sponsorship</Label>
+                    <Select value={visa} onValueChange={setVisa}>
+                        <SelectTrigger id="filter-visa" className="w-full">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={ANY}>Any</SelectItem>
+                            {(
+                                Object.keys(
+                                    visaFilterLabels,
+                                ) as VisaSponsorshipFilter[]
+                            ).map((value) => (
+                                <SelectItem key={value} value={value}>
+                                    {visaFilterLabels[value]}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="grid gap-2">
                     <Label htmlFor="filter-min-confidence">
                         Minimum confidence
                     </Label>
@@ -206,6 +246,15 @@ export default function SponsorFilters({ teamSlug, filters, regions }: Props) {
                             }
                         />
                         AI only
+                    </Label>
+                    <Label className="flex items-center gap-2 font-normal">
+                        <Checkbox
+                            checked={developerRoles}
+                            onCheckedChange={(checked) =>
+                                setDeveloperRoles(checked === true)
+                            }
+                        />
+                        Developer roles
                     </Label>
                     <Label className="flex items-center gap-2 font-normal">
                         <Checkbox
