@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import InputError from '@/components/input-error';
 import {
+    aiClasses,
     confidenceClass,
     scaleUpClasses,
     secondCheckClasses,
@@ -87,9 +88,17 @@ export default function SponsorRow({ teamSlug, sponsor, permissions }: Props) {
                 {sponsor.is_scale_up ? (
                     <Badge
                         data-test="scale-up-badge"
-                        className={`mt-1 border-transparent ${scaleUpClasses}`}
+                        className={`mt-1 mr-1 border-transparent ${scaleUpClasses}`}
                     >
                         Scale-up
+                    </Badge>
+                ) : null}
+                {sponsor.is_ai ? (
+                    <Badge
+                        data-test="ai-badge"
+                        className={`mt-1 border-transparent ${aiClasses}`}
+                    >
+                        AI
                     </Badge>
                 ) : null}
             </td>

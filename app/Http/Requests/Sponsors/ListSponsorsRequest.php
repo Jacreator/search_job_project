@@ -28,6 +28,7 @@ class ListSponsorsRequest extends FormRequest
             'scale_up' => ['nullable', 'boolean'],
             'rating_missing' => ['nullable', 'boolean'],
             'needs_second_check' => ['nullable', 'boolean'],
+            'ai' => ['nullable', 'boolean'],
             'search' => ['nullable', 'string', 'max:255'],
             'page' => ['nullable', 'integer', 'min:1'],
         ];
@@ -49,6 +50,7 @@ class ListSponsorsRequest extends FormRequest
             scaleUp: $this->boolean('scale_up'),
             ratingMissing: $this->boolean('rating_missing'),
             needsSecondCheck: $this->boolean('needs_second_check'),
+            ai: $this->boolean('ai'),
             search: $this->text('search'),
         );
     }

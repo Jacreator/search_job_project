@@ -34,7 +34,7 @@
 - `app/Services/RegisterImport` - reads the register CSV row by row and upserts one team's sponsors in chunks. Returns an `ImportSummary`.
 - `app/Services/SponsorExport` - streams one team's done rows with a website to a CSV in `storage/app/exports`, filtered by an `ExportFilters` value object. Database and file only.
 - `app/Support` - small pure helpers: `CompanyName` (normalisation), `EmployerClassifier`, `SearchQuery` (web search query from name and town), `TermMatcher` (shared whole-word matching), `AiDetector`, `SponsorRating`, `PriorityLocations`, `CareersSignals`, `CsvCell` (formula escaping for exported cells).
-- `app/Enums` - `SponsorStatus`, `TechReason`, `SkipReason`, `VisaSponsorship`.
+- `app/Enums` - `SponsorStatus`, `TechReason`, `SkipReason`, `AiSource`, `VisaSponsorship`.
 - `app/Http/Controllers/Sponsors` + `app/Http/Requests/Sponsors` - review dashboard only.
 - `app/Services/SponsorDashboard` - the dashboard's reads: one filtered page of a team's sponsors (`SponsorFilters`), counts per status and skip reason, and the team's regions. Database only.
 - `app/Policies/SponsorPolicy` - who may update a sponsor (`update`) and set a rating grade (`setRatings`, `setRating`).

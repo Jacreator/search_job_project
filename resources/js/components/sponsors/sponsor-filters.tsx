@@ -34,6 +34,7 @@ export default function SponsorFilters({ teamSlug, filters, regions }: Props) {
     );
     const [tech, setTech] = useState(filters.tech);
     const [scaleUp, setScaleUp] = useState(filters.scale_up);
+    const [ai, setAi] = useState(filters.ai);
     const [ratingMissing, setRatingMissing] = useState(filters.rating_missing);
     const [needsSecondCheck, setNeedsSecondCheck] = useState(
         filters.needs_second_check,
@@ -77,6 +78,10 @@ export default function SponsorFilters({ teamSlug, filters, regions }: Props) {
 
         if (scaleUp) {
             query.scale_up = '1';
+        }
+
+        if (ai) {
+            query.ai = '1';
         }
 
         if (ratingMissing) {
@@ -192,6 +197,15 @@ export default function SponsorFilters({ teamSlug, filters, regions }: Props) {
                             }
                         />
                         Scale-up only
+                    </Label>
+                    <Label className="flex items-center gap-2 font-normal">
+                        <Checkbox
+                            checked={ai}
+                            onCheckedChange={(checked) =>
+                                setAi(checked === true)
+                            }
+                        />
+                        AI only
                     </Label>
                     <Label className="flex items-center gap-2 font-normal">
                         <Checkbox

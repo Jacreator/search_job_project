@@ -27,6 +27,9 @@ export const skipReasonLabels: Record<SkipReason, string> = {
 export const scaleUpClasses =
     'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300';
 
+export const aiClasses =
+    'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300';
+
 export const secondCheckClasses =
     'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300';
 

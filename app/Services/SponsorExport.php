@@ -27,6 +27,7 @@ final class SponsorExport
         'Confidence',
         'Confirmed',
         'Scale-up',
+        'AI',
         'Needs second check',
     ];
 
@@ -129,6 +130,7 @@ final class SponsorExport
             (int) $sponsor->confidence,
             $sponsor->confirmed ? 'Yes' : 'No',
             str_contains($sponsor->route, Sponsor::SCALE_UP_ROUTE) ? 'Yes' : 'No',
+            $sponsor->is_ai ? 'Yes' : 'No',
             $sponsor->needs_second_check ? 'Yes' : 'No',
         ];
     }

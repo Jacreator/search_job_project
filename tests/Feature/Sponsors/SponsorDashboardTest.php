@@ -127,6 +127,7 @@ test('a member sees the team\'s sponsors', function () {
                 'status' => 'done',
                 'skip_reason' => null,
                 'is_scale_up' => true,
+                'is_ai' => false,
             ])
         );
 });
@@ -330,6 +331,7 @@ test('combines filters and returns them to the page', function () {
                 'scale_up' => false,
                 'rating_missing' => false,
                 'needs_second_check' => false,
+                'ai' => false,
                 'search' => 'match',
             ])
         );

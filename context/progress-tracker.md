@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Feature 13 complete. Feature 14 not started.
+- Feature 14 complete. Feature 15 not started.
 
 ## Current Goal
 
-- Feature 14: AI tagging
+- Feature 15: Careers page and hiring signals
 
 ## Completed
 
@@ -200,13 +200,24 @@ Update this file whenever the current phase, active feature, or implementation s
   - Not checked in a browser, and not run live: only one local team has data, so no real copy has happened yet.
   - Stored normalised name (2026-10-14, approved by James): migration `2026_10_14_000003_add_normalised_name_to_sponsors_table` (`normalised_name`, string, default `''`, indexed) fills existing rows (14 s for 122,938 local rows; 2 empty, the two "T/A" names). `Sponsor` sets it on every save, `RegisterImport` on insert. `SharedLookup` now queries the indexed column instead of scanning the town in PHP, then checks the exact name in PHP (the MySQL collation ignores accents). Local MySQL uses the index (London lookup 0.4 ms). Runs, rolls back, and re-runs. Tests: migration fill and rollback, model create and rename, lookup uses the column, import stores it. `composer ci:check` passes (615 tests).
 
+- Feature 14: AI tagging (2026-10-14):
+  - Migration `2026_10_14_000004_add_ai_fields_to_sponsors_table` (`is_ai`, boolean, default false, indexed; `ai_source`, string, nullable). Runs, rolls back, and re-runs on local MySQL. `App\Enums\AiSource` (`Name`, `Homepage`); `Sponsor` casts, fillable, default, docblock.
+  - `ai_keywords` in `config/sponsor-finder.php` (the 15 spec terms, in a new "AI Tagging" section).
+  - `App\Support\TermMatcher::contains()` (static, pure): lowercase, curly to straight apostrophes, hyphens to spaces, spaces collapsed, for text and terms alike; one regex of all terms, whole word or phrase, optional plural "s", a letter, digit, or underscore on either side blocks the match, dots literal. Empty text or no usable terms is false.
+  - `App\Support\AiDetector` (`fromName` on the `CompanyName`-normalised name, `fromText`), terms injected from config.
+  - `EnrichSponsor`: after classification, a name match sets `is_ai` and `ai_source` `name`. After verification, when not already tagged, a homepage text match on the `VerifiedPage` sets `homepage`. No extra request. Shared lookups now copy `is_ai` and `ai_source`.
+  - Dashboard: `is_ai` per row, indigo "AI" badge next to the Scale-up badge, "AI only" filter (`ai`). Export: "AI" column (Yes / No) after "Scale-up".
+  - Tests: `tests/Unit/Support/TermMatcherTest.php`, `tests/Unit/Support/AiDetectorTest.php` (52 together), `tests/Feature/Sponsors/AiTaggingTest.php` (12: migration, name, homepage, name wins over homepage, no match, no website, skipped row tagged by name, request count, shared copy, dashboard filter and badge data, invalid filter, export column), config test. Existing export and dashboard tests updated for the new column and props. `composer ci:check` passes (680 tests).
+  - Real names (no API calls): 299 of 122,938 register names are tagged from the name, none of them looked up yet. Some are wrong: "Ai" as a name or initials (for example "Ai Beauty LTD", "AI & CO LTD TA Flying Horse Restaurant"). Logged in the backlog.
+  - Not checked in a browser, and not run live.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Feature 14: AI tagging.
+- Feature 15: Careers page and hiring signals.
 
 ## Open Questions
 
@@ -243,6 +254,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Sponsor data is scoped per team (`team_id` on `sponsors`). API keys and the rate limiters are shared.
 - Import, enrich, status, and export stay Artisan commands. Commands take `--team=` (slug).
 - Sponsor editing: owners and admins always; members only when an owner or admin turns on their `can_edit_sponsors` flag (default off). New `TeamPermission::ManageSponsorEditors` for owner and admin.
+- AI tagging (`is_ai`, `ai_source`) is independent of `is_tech`: a row skipped as not tech can still be tagged from its name.
 - Shared lookups match on the stored, indexed `sponsors.normalised_name`, kept in step by the model and import. A change to the `CompanyName` rules needs the column refilled.
 - Lookups are shared between teams only when both teams have `share_lookups` on (default off, owners and admins toggle). `confirmed`, `region`, `priority`, `rating_grade`, and `rating_grade_manual` are never shared, and `BRating` rows are never a source. A copy of another team's hand-confirmed website is capped at confidence 74 and flagged `needs_second_check` until this team confirms it.
 - The agent never commits, pushes, or runs any git write command. It may run only `git status`, `git diff`, and `git log`. James does all git writes. Enforced by `.claude/settings.json`.
