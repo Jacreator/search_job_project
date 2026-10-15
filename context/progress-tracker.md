@@ -230,9 +230,13 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
+- James to approve draft specs 23 to 25 (written 2026-10-14 from James's brief): sector labels for every sponsor, a public company directory for one owner team, and a public company page. Open questions listed in each spec and in `context/status-summary.md`.
+- James to approve draft specs 16 to 22 (written 2026-10-14 from James's list: URL resolution, stronger website check, retry failed rows, AI name rule, careers re-checks, job board feeds, shared companies proposal). Build the approved ones in number order.
 - Second pass: decide the open questions, then work through the backlog in `context/status-summary.md`.
 
 ## Open Questions
+
+- Specs 23 to 25: see the "Open Questions For Specs 23 To 25" list in `context/status-summary.md` (not-tech wording, who is listed publicly, `looked_up_at` column, search engine indexing, and how they fit with spec 22).
 
 - Should the dashboard let an editor clear a wrong website (not only replace it), and edit rows that are not `done` (for example a row skipped as not tech)? Both are refused for now.
 - Excel drops the leading zeros of company numbers (for example `03917515`) when it opens the export CSV. Should the export protect them, and how (for example a `="03917515"` cell, which other tools show literally)?
