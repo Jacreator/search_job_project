@@ -4,7 +4,7 @@
 
 A Laravel app that takes the UK Home Office register of licensed sponsors and finds the employers where James can get a Software Engineer or AI Engineer job on a Skilled Worker visa. It finds which sponsors are tech employers, finds each one's official website and careers page, and checks whether they hire developers and whether they offer or refuse visa sponsorship. Sheffield and Yorkshire come first.
 
-The app is built on the Laravel React starter kit. Users log in, belong to teams, and each team works on its own copy of the sponsor register.
+The app is built on the Laravel React starter kit. Users log in, belong to teams, and each team works on its own copy of the sponsor register. Planned (specs 23 to 25, drafts awaiting approval): every sponsor gets a sector label, and one owner team's results are shown in a public company directory with a page per company, with no login.
 
 ## Goals
 
@@ -19,6 +19,8 @@ The app is built on the Laravel React starter kit. Users log in, belong to teams
 9. Find each tech sponsor's careers page and check it for developer roles and whether it offers or refuses visa sponsorship.
 10. Export the results to CSV.
 11. Let team members review and fix low-confidence rows in a dashboard.
+12. Label every sponsor with its SIC 2007 sector, not only tech ones (spec 23, planned).
+13. Publish one owner team's results as a public, searchable company directory with a page per company, showing only public safe fields (specs 24 and 25, planned).
 
 ## Core Flow
 
@@ -80,6 +82,19 @@ The app is built on the Laravel React starter kit. Users log in, belong to teams
 - Progress saved per row so a restart loses nothing.
 - Teams can opt in to reuse each other's finished lookups, saving API calls.
 
+### Sector Labels (spec 23, planned)
+
+- Every sponsor with SIC codes gets a sector from its SIC 2007 section (A to U), set with no extra API calls.
+- The dashboard shows the sector instead of "Not tech", with a sector filter. The export has a sector column.
+- Tech detection and the tech-only website search are unchanged.
+
+### Public Company Directory And Company Page (specs 24 and 25, planned)
+
+- A public `/companies` page with no login, showing one owner team's sponsors (set by `SPONSOR_PUBLIC_TEAM`).
+- Only public safe fields: never confidence, errors, review flags, or team information. A website is only shown when confirmed or at confidence 75 or more, and the careers signals only with it.
+- Search by name and filters for town, region, sector, AI, visa offered, and developer roles. Throttled, no bulk export.
+- A page per company at `/companies/{public id}` with SIC code descriptions and a Companies House link.
+
 ### Export
 
 - CSV of a team's done rows, filtered by minimum confidence, town, or region.
@@ -103,6 +118,8 @@ The app is built on the Laravel React starter kit. Users log in, belong to teams
 - Careers page finder with developer role and visa sponsorship signals.
 - CSV import and export via Artisan commands.
 - Review dashboard behind login.
+- Sector labels for every sponsor with SIC codes (spec 23, planned).
+- A read-only public directory and company page for one owner team, with no login (specs 24 and 25, planned).
 
 ### Out Of Scope
 
@@ -110,7 +127,8 @@ The app is built on the Laravel React starter kit. Users log in, belong to teams
 - Scraping or storing individual job adverts. The careers check only records the careers page URL and yes or no signals.
 - Emailing companies or applying for jobs.
 - Paid data providers beyond the search API.
-- Importing or exporting through the web UI (commands only for now).
+- Importing or exporting through the web UI (commands only for now). This includes the public directory: no bulk export or JSON API.
+- Public editing, public accounts, or showing any team's data other than the one owner team.
 
 ## Success Criteria
 

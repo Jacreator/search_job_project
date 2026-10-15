@@ -5,7 +5,7 @@ All 15 feature specs are built. The second pass handles everything listed below.
 ## Where Things Stand (2026-10-14)
 
 - Done: all 15 features (setup, sponsors table, CSV import, Companies House, employer classification, web search, website scoring, enrich job, batch and schedule, export, sponsor edit permission, review dashboard, shared lookups, AI tagging, careers page and hiring signals).
-- Next: the second pass below.
+- Next: the second pass below. Specs 16 to 22 (drafts, awaiting James's approval) cover the fixes and additions James listed on 2026-10-14.
 
 ## Open Questions
 
@@ -15,6 +15,32 @@ Decide these before the second pass starts.
 2. **Leading zeros in the export.** Excel strips the leading zeros of company numbers (for example `03917515`) when it opens the CSV. Should the export protect them, and how? A `="03917515"` cell works in Excel, but other tools show it as written.
 3. **Search provider.** Which provider to use long term if Brave's limits are too tight.
 4. **Hosting.** Where the app will run, if anywhere beyond local Herd. This decides what `deployment-context.md` has to cover (queue worker, scheduler, environment).
+
+## Draft Specs Awaiting Approval
+
+| Spec                      | What it does                                                                                                                                      |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 16 URL resolution         | One `Url::resolve()` for redirects and links: relative paths, query-only, `./` and `../`                                                          |
+| 17 Stronger website check | Full name on the page +25, first two words +10, no first-word-only bonus                                                                          |
+| 18 Retry failed rows      | `sponsors:retry --failed` puts failed rows back to `pending` or `ch_done`                                                                         |
+| 19 AI name rule           | Name tags only on tech rows; `sponsors:retag-ai` re-applies the rule                                                                              |
+| 20 Careers re-checks      | Re-check after 30 days; fetch errors retried later, not "nothing found"                                                                           |
+| 21 Job board feeds        | Greenhouse, Lever, Ashby, Workable JSON feeds for real job titles                                                                                 |
+| 22 Shared companies       | Proposal only: one `companies` table shared by all teams, if the app goes multi-user                                                              |
+| 23 Sector labels          | SIC 2007 section (A to U) for every sponsor with SIC codes; dashboard shows the sector instead of "Not tech"; fill command, filter, export column |
+| 24 Public directory       | Public `/companies` for one owner team (`SPONSOR_PUBLIC_TEAM`), public safe fields only, ULID `public_id`, throttled, no export                   |
+| 25 Company page           | Public `/companies/{public id}` with SIC descriptions (from the Companies House condensed list) and a Companies House link                        |
+
+## Open Questions For Specs 23 To 25
+
+1. **Wording for "not tech" (spec 23).** Rows skipped as not tech show their sector. The summary card for that skip reason becomes "Other sectors". Is that the wording you want?
+2. **Who is listed publicly (spec 24).** Proposed: `done` rows and rows skipped as not tech (matched on Companies House and active). Pending, failed, no match, inactive, and B-rated rows are never listed. Should rows with no Companies House match be listed too, with register data only?
+3. **Hiding careers data with the website (spec 24).** Proposed: careers page, developer roles, visa signal, and homepage AI tags are only shown when the website is shown (confirmed or confidence 75 or more), because they come from that website. OK?
+4. **Last checked (spec 25).** No column records when the lookup ran. Add a `looked_up_at` timestamp (recommended, a schema change beyond the brief), or show only the careers check date?
+5. **Search engines.** Should the public pages be indexed by search engines, or carry `noindex` until you decide?
+6. **Rate limit.** 60 requests per minute per IP for the public pages (`SPONSOR_PUBLIC_RATE_PER_MINUTE`, a second new env key). OK?
+7. **Spec 22.** If the shared companies table (spec 22) goes ahead, sector and the public fields belong on `companies`. Build 23 to 25 first on `sponsors`, or decide 22 first?
+8. **Spec 17.** The stronger website check would lower some confidences, so fewer websites would reach the public 75 threshold. Build 17 before 24?
 
 ## Fixes and Additions for the Second Pass
 
@@ -41,15 +67,13 @@ Decide these before the second pass starts.
 
 ### AI tagging (Feature 14)
 
-- [ ] False positives from "Ai" as a person's name or initials: "Ai Beauty LTD", "AI & CO LTD TA Flying Horse Restaurant" and others among the 299 register names tagged from the name. Options: only tag from the name when the row is also tech, or add AI noise words. Decide on a rule.
-- [ ] Rows looked up before Feature 14 (about 60 local rows) have no AI tag. The name check can be re-run with no API calls; the homepage check needs the page fetched again.
+- [ ] False positives from "Ai" as a person's name or initials, and rows looked up before Feature 14 with no AI tag: covered by spec 19.
 - [ ] Live run to see homepage tagging on real sites.
 
 ### Careers pages (Feature 15)
 
-- [ ] The careers check runs once per row and is never repeated. Jobs and visa wording change, so decide whether to re-check rows after some time (for example 30 days).
-- [ ] A fetch error counts as "no page", so a site that is down during the check is marked checked with nothing found. Decide whether to retry those later.
-- [ ] Careers pages built with JavaScript (many job boards) may show little text to a plain fetch, so developer roles and visa wording can be missed.
+- [ ] Re-checks after 30 days and retrying fetch errors later: covered by spec 20.
+- [ ] Careers pages built with JavaScript: covered for Greenhouse, Lever, Ashby and Workable by spec 21. Workday and SuccessFactors still use the page check.
 - [ ] Larger live run: only 7 local rows were eligible (5 pages found).
 
 ### Revisit if things change
